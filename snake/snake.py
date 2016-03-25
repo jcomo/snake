@@ -1,17 +1,10 @@
-from __future__ import print_function  # TODO: use logging
-import subprocess
-import sys
-import imp
+from __future__ import print_function
+
+from imp import load_source
+from sys import exit, stderr, argv
 
 from .tasks import TaskRegistry
-
-
-def sh(command):
-    _instance.info(command)
-    exit_status = subprocess.call(command, shell=True)
-    if exit_status != 0:
-        # TODO: rake-style aborting
-        _instance.abort(exit_status)
+from .shell import ShellWrapper
 
 
 class Snake(object):
@@ -23,24 +16,24 @@ class Snake(object):
         self._execute_command()
 
     def abort(self, code):
-        sys.exit(code)
+        exit(code)
 
     def info(self, message):
         print(message)
 
     def error(self, message):
-        print(message, file=sys.stderr)
+        print(message, file=stderr)
 
     def _load_manifest(self):
         try:
-            imp.load_source('Snakefile', './Snakefile')
+            load_source('Snakefile', './Snakefile')
         except IOError as e:
             self.error("No Snakefile found")
             self.abort(1)
 
     def _execute_command(self):
         try:
-            subcommand = sys.argv[1]
+            subcommand = argv[1]
         except IndexError:
             subcommand = 'default'
 
@@ -52,6 +45,8 @@ class Snake(object):
 
 
 _instance = Snake()
+_runner = ShellWrapper(_instance)
 
+sh = _runner.execute
 task = _instance.registry.add_task
 namespace = _instance.registry.add_namespace
