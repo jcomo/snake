@@ -10,6 +10,10 @@ class Task(object):
 class TaskRegistry(object):
     def __init__(self):
         self._tasks = {}
+
+        # Keeps a stack of namespace strings to handle nest namespaces.
+        # The array is usually empty except when in the middle of evaluating
+        # the contents of a namespace
         self.__working_namespace = []
 
     def add_task(self, description):
