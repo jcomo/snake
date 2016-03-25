@@ -4,7 +4,7 @@ from unittest import TestCase
 
 class PEP8Tests(TestCase):
     CHECKED_DIRS = ['tests', 'snake']
-    IGNORED_RULES = ['E501']
+    IGNORED_RULES = ['E501', 'E731']
 
     def test_pep8(self):
         pep8_command = 'env pep8 %s %s' % (self._ignore_rules(), self._check_dirs())

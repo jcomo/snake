@@ -15,6 +15,7 @@ class Flag(object):
 
 
 class TaskTests(TestCase):
+    @skip('Implement me')
     def test_executing_runs_underlying_function(self):
         pass
 
@@ -80,3 +81,24 @@ class TaskRegistryTests(TestCase):
 
         self.registry.execute('deeper:name:space')
         self.assertTrue(called)
+
+    def test_it_renders_tasks_in_table_form(self):
+
+        @self.registry.add_task("Builds")
+        def build():
+            pass
+
+        @self.registry.add_task("Compiles")
+        def compile():
+            pass
+
+        expected = [
+            'compile      # Compiles',
+            'build        # Builds',
+        ]
+
+        self.assertEqual('\n'.join(expected), self.registry.view_all())
+
+    def test_it_renders_nothing_when_no_tasks(self):
+        table = self.registry.view_all()
+        self.assertEqual('', table)

@@ -36,6 +36,28 @@ class TaskRegistry(object):
 
         task.execute(**kwargs)
 
+    def view_all(self):
+        print self._tasks
+        tasks = [(label, t.description) for label, t in self._tasks.iteritems()]
+        return TaskListFormatter(tasks).tableize(padding=4)
+
     def _add_task(self, f, desc):
         label = ':'.join(self.__working_namespace + [f.__name__])
         self._tasks[label] = Task(f, desc)
+
+
+class TaskListFormatter(object):
+    def __init__(self, tasks):
+        print tasks
+        self._tasks = tasks
+
+    def tableize(self, padding=0):
+        by_length = lambda (label, _): len(label)
+
+        try:
+            longest_task_label, _ = max(self._tasks, key=by_length)
+        except ValueError:
+            return ''
+
+        width = len(longest_task_label) + padding
+        return '\n'.join('%s  # %s' % (label.ljust(width), desc) for label, desc in self._tasks)
