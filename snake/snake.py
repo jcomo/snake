@@ -1,11 +1,11 @@
+from __future__ import print_function  # TODO: use logging
 import subprocess
 import sys
 import imp
 
 
-# FIXME: better print command?
 def sh(command):
-    print command
+    _instance.info(command)
     exit_status = subprocess.call(command, shell=True)
     if exit_status != 0:
         # TODO: rake-style aborting
@@ -38,11 +38,17 @@ class Snake(object):
     def abort(self, code):
         sys.exit(code)
 
+    def info(self, message):
+        print(message)
+
+    def error(self, message):
+        print(message, file=sys.stderr)
+
     def _load_manifest(self):
         try:
             imp.load_source('Snakefile', './Snakefile')
         except IOError as e:
-            print "No Snakefile found"
+            self.error("No Snakefile found")
             self.abort(1)
 
     def _execute_command(self):
@@ -54,11 +60,11 @@ class Snake(object):
         try:
             f, _ = self._tasks[subcommand]
         except KeyError:
-            print "Don't know how to build task: %s" % subcommand
+            self.error("Don't know how to build task: %s" % subcommand)
             self.abort(1)
         else:
             # TODO: argument passing
-            f("thangs")
+            f()
 
 
 _instance = Snake()

@@ -1,6 +1,6 @@
 from snake import *
 
-@task("Does something cool")
-def something(name):
-    sh('echo Hello %s' % name)
+@task("Says hello")
+def hello():
+    sh('echo Hello World!')
 
