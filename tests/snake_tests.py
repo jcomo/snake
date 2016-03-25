@@ -72,6 +72,24 @@ class SnakeTests(IntegrationTest):
         self.assertStdoutEqual(result, ['true'])
         self.assertStatusEqual(result, 0)
 
+    def test_it_has_shortcut_to_current_environment(self):
+        import os
+        os.environ['THING'] = 'hey'
+
+        self.use_snakefile("""
+            from snake import *
+
+            @task("Check environment")
+            def check():
+                print env.get('THING')
+        """)
+
+        result = self.execute('snake check')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['hey'])
+        self.assertStatusEqual(result, 0)
+
     def test_it_exits_when_shell_command_fails(self):
         self.use_snakefile("""
             from snake import *

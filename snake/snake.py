@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from imp import load_source
+from os import environ
 from sys import exit, stderr, argv
 
 from .tasks import TaskRegistry
@@ -47,6 +48,7 @@ class Snake(object):
 _instance = Snake()
 _runner = ShellWrapper(_instance)
 
+env = environ
 sh = _runner.execute
 task = _instance.registry.add_task
 namespace = _instance.registry.add_namespace
