@@ -54,6 +54,37 @@ class SnakeTests(IntegrationTest):
         self.assertStdoutEqual(result, ['true'])
         self.assertStderrEmpty(result)
 
+    def test_it_runs_namespaced_commands(self):
+        self.use_snakefile("""
+            from snake import *
+
+            @namespace
+            def name():
+
+                @task("Does stuff")
+                def space():
+                    sh('true')
+
+                @namespace
+                def deeper():
+
+                    @task("Keep going")
+                    def space():
+                        sh('echo')
+        """)
+
+        result = self.execute('snake name:space')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['true'])
+        self.assertStatusEqual(result, 0)
+
+        result = self.execute('snake name:deeper:space')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['echo'])
+        self.assertStatusEqual(result, 0)
+
     def test_it_exits_when_shell_command_fails(self):
         self.use_snakefile("""
             from snake import *

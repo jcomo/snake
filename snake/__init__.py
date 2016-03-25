@@ -1,3 +1,3 @@
-from .snake import sh, task
+from .snake import sh, task, namespace
 
-__all__ = ['sh', 'task']
+__all__ = ['sh', 'task', 'namespace']

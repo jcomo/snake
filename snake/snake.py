@@ -12,6 +12,13 @@ def sh(command):
         _instance.abort(exit_status)
 
 
+def namespace(f):
+    _instance.enter_namespace(f.__name__)
+    f()  # Evaluate contents to add all tasks inside
+    _instance.exit_namespace()
+    return f
+
+
 # FIXME: function wrapping?
 def task(desc):
     def _task(f):
@@ -26,10 +33,18 @@ def task(desc):
 class Snake(object):
     def __init__(self):
         self._tasks = {}
+        self._namespace = []  # FIXME: hack (builder instead?)
+
+    def enter_namespace(self, namespace):
+        self._namespace.append(namespace)
+
+    def exit_namespace(self):
+        self._namespace.pop()
 
     def add_task(self, f, desc):
         # TODO: task class
-        self._tasks[f.__name__] = (f, desc)
+        label = ':'.join(self._namespace + [f.__name__])
+        self._tasks[label] = (f, desc)
 
     def run(self):
         self._load_manifest()
