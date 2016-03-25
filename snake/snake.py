@@ -3,6 +3,8 @@ import subprocess
 import sys
 import imp
 
+from .tasks import TaskRegistry
+
 
 def sh(command):
     _instance.info(command)
@@ -12,39 +14,9 @@ def sh(command):
         _instance.abort(exit_status)
 
 
-def namespace(f):
-    _instance.enter_namespace(f.__name__)
-    f()  # Evaluate contents to add all tasks inside
-    _instance.exit_namespace()
-    return f
-
-
-# FIXME: function wrapping?
-def task(desc):
-    def _task(f):
-        _instance.add_task(f, desc)
-
-        def __task(*args, **kwargs):
-            return f(*args, **kwargs)
-        return __task
-    return _task
-
-
 class Snake(object):
     def __init__(self):
-        self._tasks = {}
-        self._namespace = []  # FIXME: hack (builder instead?)
-
-    def enter_namespace(self, namespace):
-        self._namespace.append(namespace)
-
-    def exit_namespace(self):
-        self._namespace.pop()
-
-    def add_task(self, f, desc):
-        # TODO: task class
-        label = ':'.join(self._namespace + [f.__name__])
-        self._tasks[label] = (f, desc)
+        self.registry = TaskRegistry()
 
     def run(self):
         self._load_manifest()
@@ -73,13 +45,13 @@ class Snake(object):
             subcommand = 'default'
 
         try:
-            f, _ = self._tasks[subcommand]
+            self.registry.execute(subcommand)
         except KeyError:
             self.error("Don't know how to build task: %s" % subcommand)
             self.abort(1)
-        else:
-            # TODO: argument passing
-            f()
 
 
 _instance = Snake()
+
+task = _instance.registry.add_task
+namespace = _instance.registry.add_namespace
