@@ -25,7 +25,11 @@ class TaskRegistry(object):
         return f
 
     def execute(self, label, **kwargs):
-        task = self._tasks[label]
+        try:
+            task = self._tasks[label]
+        except KeyError:
+            raise KeyError('Unknown task: %s' % label)
+
         task.execute(**kwargs)
 
     def _add_task(self, f, desc):
