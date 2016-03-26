@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from imp import load_source
-from os import environ
+from os import environ, path, getcwd
 from sys import exit, stderr, argv, exc_info
 from traceback import extract_tb
 
@@ -30,7 +30,11 @@ class Snake(object):
 
     def _run(self, tasks, args, opts):
         self._load_manifest(opts)
-        self._execute_command(tasks, args, opts)
+
+        if 'T' in opts:
+            self._list_tasks()
+        else:
+            self._execute_command(tasks, args)
 
     def _handle_exception(self, e, opts):
         self.error('snake aborted!')
@@ -58,8 +62,12 @@ class Snake(object):
         return module.startswith(library_path)
 
     def _load_manifest(self, opts):
+        filename = opts.get('f', 'Snakefile')
+        if not path.isabs(filename):
+            filename = path.join(getcwd(), filename)
+
         try:
-            module = load_source('Snakefile', 'Snakefile')
+            module = load_source('Snakefile', filename)
         except IOError as e:
             raise Exception("No Snakefile found")
         else:
@@ -69,11 +77,10 @@ class Snake(object):
         default_task = getattr(module, 'default', None)
         self.registry.default = default_task
 
-    def _execute_command(self, tasks, args, opts):
-        if 'T' in opts:
-            self.info(self.registry.view_all())
-            return
+    def _list_tasks(self):
+        self.info(self.registry.view_all())
 
+    def _execute_command(self, tasks, args):
         try:
             self.registry.execute(tasks, **args)
         except NoSuchTaskException as e:
