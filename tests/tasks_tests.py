@@ -2,7 +2,7 @@ from StringIO import StringIO
 
 from unittest import TestCase, skip
 
-from snake.tasks import Task, TaskRegistry
+from snake.tasks import Task, TaskRegistry, NoSuchTaskException
 
 
 class Flag(object):
@@ -82,8 +82,8 @@ class TaskRegistryTests(TestCase):
         self.assertTrue(one_called)
         self.assertTrue(two_called)
 
-    def test_it_raises_key_error_for_unknown_label(self):
-        with self.assertRaisesRegexp(KeyError, 'something'):
+    def test_it_raises_for_unknown_label(self):
+        with self.assertRaisesRegexp(NoSuchTaskException, r'something'):
             self.registry.execute(['something'])
 
     def test_it_runs_default_task_when_no_tasks_specified(self):
@@ -97,11 +97,11 @@ class TaskRegistryTests(TestCase):
         self.registry.execute([])
 
     def test_it_raises_assertion_when_default_is_not_string(self):
-        with self.assertRaisesRegexp(AssertionError, "default task must be a string"):
+        with self.assertRaisesRegexp(AssertionError, r"default task must be a string"):
             self.registry.default = lambda: True
 
-    def test_it_raises_key_error_with_default_when_no_default(self):
-        with self.assertRaisesRegexp(KeyError, 'default'):
+    def test_it_raises_with_default_when_no_default(self):
+        with self.assertRaisesRegexp(NoSuchTaskException, r'default'):
             self.registry.execute([])
 
     def test_it_handles_namespacing_tasks(self):

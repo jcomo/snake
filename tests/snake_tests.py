@@ -7,7 +7,15 @@ class SnakeTests(IntegrationTest):
 
         self.assertStatusEqual(result, 1)
         self.assertStdoutEmpty(result)
-        self.assertStderrEqual(result, ["No Snakefile found"])
+
+        expected_error = [
+            'snake aborted!',
+            'No Snakefile found',
+            '',
+            '(See full trace by running task with --trace)',
+        ]
+
+        self.assertStderrEqual(result, expected_error)
 
     def test_it_exits_with_error_when_task_name_not_found(self):
         self.use_snakefile("""
@@ -21,7 +29,7 @@ class SnakeTests(IntegrationTest):
         result = self.execute('snake blah')
 
         self.assertStdoutEmpty(result)
-        self.assertStderrEqual(result, ["Don't know how to build task: blah"])
+        self.assertStderrMatchesLine(result, "Don't know how to build task: blah")
         self.assertStatusEqual(result, 1)
 
     def test_it_runs_default_task_when_none_specified(self):
@@ -126,7 +134,7 @@ class SnakeTests(IntegrationTest):
 
         self.assertStderrMatchesLine(result, r'blah.*command not found')
         self.assertStdoutEqual(result, ['blah'])
-        self.assertStatusEqual(result, 127)
+        self.assertStatusEqual(result, 1)
 
     def test_it_displays_all_available_tasks(self):
         self.use_snakefile("""
