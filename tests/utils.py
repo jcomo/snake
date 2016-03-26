@@ -30,19 +30,30 @@ class ProcessResultAssertions(object):
     def assertStderrEmpty(self, result):
         self.assertEqual([''], result.stderr)
 
-    def assertStdoutMatchesLine(self, result, pattern):
-        self._assertOutputMatchesLine(result.stdout, pattern)
+    def assertStdoutMatches(self, result, pattern):
+        self._assertOutputMatches(result.stdout, pattern)
 
-    def assertStderrMatchesLine(self, result, pattern):
-        self._assertOutputMatchesLine(result.stderr, pattern)
+    def assertStderrMatches(self, result, pattern):
+        self._assertOutputMatches(result.stderr, pattern)
 
-    def _assertOutputMatchesLine(self, output, pattern):
+    def assertStdoutDoesNotMatch(self, result, pattern):
+        self._assertOutputDoesNotMatch(result.stdout, pattern)
+
+    def assertStderrDoesNotMatch(self, result, pattern):
+        self._assertOutputDoesNotMatch(result.stderr, pattern)
+
+    def _assertOutputMatches(self, output, pattern):
         for line in output:
             if search(pattern, line):
                 break
         else:
             friendly_output = repr('\n'.join(output))
             self.fail("No match found for %s in %s" % (repr(pattern), friendly_output))
+
+    def _assertOutputDoesNotMatch(self, output, pattern):
+        for line in output:
+            if search(pattern, line):
+                self.fail("Output matches %s in line %s" % (repr(pattern), line))
 
 
 class IntegrationTest(TestCase, ProcessResultAssertions):

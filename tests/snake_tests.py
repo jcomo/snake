@@ -7,15 +7,8 @@ class SnakeTests(IntegrationTest):
 
         self.assertStatusEqual(result, 1)
         self.assertStdoutEmpty(result)
-
-        expected_error = [
-            'snake aborted!',
-            'No Snakefile found',
-            '',
-            '(See full trace by running task with --trace)',
-        ]
-
-        self.assertStderrEqual(result, expected_error)
+        self.assertStderrMatches(result, r'^snake aborted!$')
+        self.assertStderrMatches(result, r'^No Snakefile found$')
 
     def test_it_exits_with_error_when_task_name_not_found(self):
         self.use_snakefile("""
@@ -29,7 +22,7 @@ class SnakeTests(IntegrationTest):
         result = self.execute('snake blah')
 
         self.assertStdoutEmpty(result)
-        self.assertStderrMatchesLine(result, "Don't know how to build task: blah")
+        self.assertStderrMatches(result, "Don't know how to build task: blah")
         self.assertStatusEqual(result, 1)
 
     def test_it_runs_default_task_when_none_specified(self):
@@ -132,7 +125,7 @@ class SnakeTests(IntegrationTest):
 
         result = self.execute('snake test')
 
-        self.assertStderrMatchesLine(result, r'blah.*command not found')
+        self.assertStderrMatches(result, r'blah.*command not found')
         self.assertStdoutEqual(result, ['blah'])
         self.assertStatusEqual(result, 1)
 
@@ -164,6 +157,41 @@ class SnakeTests(IntegrationTest):
             'three        # Three',
         ]
 
-        self.assertStatusEqual(result, 0)
-        self.assertStdoutEqual(result, expected)
         self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, expected)
+        self.assertStatusEqual(result, 0)
+
+    def test_it_reports_exception_with_terse_stack_trace(self):
+        self.use_snakefile("""
+            from snake import *
+
+            @task("Bad")
+            def bad():
+                raise Exception("Bad task")
+        """)
+
+        result = self.execute('snake bad')
+
+        self.assertStdoutEmpty(result)
+        self.assertStderrMatches(result, r'^Bad task$')
+        self.assertStderrMatches(result, r"Snakefile:5:in `bad'$")
+        self.assertStderrMatches(result, r"^\(See full trace by running task with --trace\)$")
+        self.assertStderrDoesNotMatch(result, r"snake.py:\d+:")
+        self.assertStatusEqual(result, 1)
+
+    def test_it_reports_full_stack_trace_with_option(self):
+        self.use_snakefile("""
+            from snake import *
+
+            @task("Bad")
+            def bad():
+                raise Exception("Bad task")
+        """)
+
+        result = self.execute('snake bad --trace')
+
+        self.assertStdoutEmpty(result)
+        self.assertStderrMatches(result, r'^Bad task$')
+        self.assertStderrMatches(result, r"Snakefile:5:in `bad'$")
+        self.assertStderrMatches(result, r"snake.py:\d+:")
+        self.assertStatusEqual(result, 1)
