@@ -1,10 +1,21 @@
+from inspect import getargspec
+
+
 class Task(object):
     def __init__(self, func, description):
         self.func = func
         self.description = description
 
     def execute(self, **kwargs):
-        self.func(**kwargs)
+        self.func(**self._sanitize_keyword_args(kwargs))
+
+    def _sanitize_keyword_args(self, kwargs):
+        only_known_keywords = lambda (k, _): k in self._func_args()
+        return dict(filter(only_known_keywords, kwargs.iteritems()))
+
+    def _func_args(self):
+        args, _, _, _ = getargspec(self.func)
+        return args
 
 
 class TaskRegistry(object):

@@ -1,3 +1,5 @@
+from StringIO import StringIO
+
 from unittest import TestCase, skip
 
 from snake.tasks import Task, TaskRegistry
@@ -26,9 +28,27 @@ class TaskTests(TestCase):
         task.execute()
         self.assertTrue(called)
 
-    @skip('Not sure if this is necessary (yet)')
+    def test_it_can_accept_positional_and_keyword_args(self):
+        args = {'a': 1}
+        output = StringIO()
+
+        def foo(a, b=2):
+            output.write(a)
+            output.write(b)
+
+        task = Task(foo, "Description")
+        task.execute(**args)
+
+        self.assertEqual('12', output.getvalue())
+
     def test_it_only_passes_kwargs_that_function_knows_about(self):
-        pass
+        args = {'a': 1, 'b': 2, 'c': 3}
+
+        def foo(a, b):
+            pass
+
+        task = Task(foo, "Description")
+        task.execute(**args)
 
 
 class TaskRegistryTests(TestCase):
