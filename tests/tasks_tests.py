@@ -47,18 +47,42 @@ class TaskRegistryTests(TestCase):
         self.assertTrue(called)
 
     def test_it_executes_task_by_label(self):
-        called = Flag()
+        one_called = Flag()
+        two_called = Flag()
 
         @self.registry.add_task("Description")
-        def flag():
-            called.set()
+        def one():
+            one_called.set()
 
-        self.registry.execute('flag')
-        self.assertTrue(called)
+        @self.registry.add_task("Description")
+        def two():
+            two_called.set()
+
+        self.registry.execute(['one', 'two'])
+        self.assertTrue(one_called)
+        self.assertTrue(two_called)
 
     def test_it_raises_key_error_for_unknown_label(self):
-        with self.assertRaisesRegexp(KeyError, 'Unknown task: something'):
-            self.registry.execute('something')
+        with self.assertRaisesRegexp(KeyError, 'something'):
+            self.registry.execute(['something'])
+
+    def test_it_runs_default_task_when_no_tasks_specified(self):
+        called = Flag()
+
+        @self.registry.add_task("Test")
+        def foo():
+            called.set()
+
+        self.registry.default = 'foo'
+        self.registry.execute([])
+
+    def test_it_raises_assertion_when_default_is_not_string(self):
+        with self.assertRaisesRegexp(AssertionError, "default task must be a string"):
+            self.registry.default = lambda: True
+
+    def test_it_raises_key_error_with_default_when_no_default(self):
+        with self.assertRaisesRegexp(KeyError, 'default'):
+            self.registry.execute([])
 
     def test_it_handles_namespacing_tasks(self):
         called = Flag()
@@ -70,7 +94,7 @@ class TaskRegistryTests(TestCase):
             def space():
                 called.set()
 
-        self.registry.execute('name:space')
+        self.registry.execute(['name:space'])
         self.assertTrue(called)
 
     def test_it_handles_nested_namespacing(self):
@@ -86,7 +110,7 @@ class TaskRegistryTests(TestCase):
                 def space():
                     called.set()
 
-        self.registry.execute('deeper:name:space')
+        self.registry.execute(['deeper:name:space'])
         self.assertTrue(called)
 
     def test_it_renders_tasks_in_table_form(self):

@@ -27,26 +27,32 @@ class Snake(object):
 
     def _load_manifest(self):
         try:
-            load_source('Snakefile', './Snakefile')
+            module = load_source('Snakefile', './Snakefile')
         except IOError as e:
             self.error("No Snakefile found")
             self.abort(1)
+        else:
+            self._register_default_task(module)
+
+    def _register_default_task(self, module):
+        default_task = getattr(module, 'default', None)
+        self.registry.default = default_task
 
     def _execute_command(self):
         try:
-            subcommand = argv[1]
+            tasks = [argv[1]]
         except IndexError:
-            subcommand = 'default'
+            tasks = []
 
         # TODO: make a parser for args, kwargs, etc
-        if subcommand == '-T':
+        if '-T' in tasks:
             self.info(self.registry.view_all())
             return
 
         try:
-            self.registry.execute(subcommand)
-        except KeyError:
-            self.error("Don't know how to build task: %s" % subcommand)
+            self.registry.execute(tasks)
+        except KeyError as e:
+            self.error("Don't know how to build task: %s" % e.message)
             self.abort(1)
 
 

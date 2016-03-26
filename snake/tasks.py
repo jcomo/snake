@@ -9,12 +9,22 @@ class Task(object):
 
 class TaskRegistry(object):
     def __init__(self):
+        self.default = None
         self._tasks = {}
 
         # Keeps a stack of namespace strings to handle nest namespaces.
         # The array is usually empty except when in the middle of evaluating
         # the contents of a namespace
         self.__working_namespace = []
+
+    def __setattr__(self, name, value):
+        if name == 'default':
+            if value and not isinstance(value, str):
+                raise AssertionError(
+                    "The default task must be a string that "
+                    "references the name of the task to run")
+
+        super(TaskRegistry, self).__setattr__(name, value)
 
     def add_task(self, description):
         def wrapper(f):
@@ -28,11 +38,18 @@ class TaskRegistry(object):
         self.__working_namespace.pop()
         return f
 
-    def execute(self, label, **kwargs):
+    def execute(self, tasks, **kwargs):
+        if not tasks:
+            self._execute_task(self.default, 'default', **kwargs)
+        else:
+            for label in tasks:
+                self._execute_task(label, label, **kwargs)
+
+    def _execute_task(self, label, friendly, **kwargs):
         try:
             task = self._tasks[label]
         except KeyError:
-            raise KeyError('Unknown task: %s' % label)
+            raise KeyError(friendly)
 
         task.execute(**kwargs)
 

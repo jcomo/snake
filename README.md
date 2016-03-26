@@ -50,14 +50,20 @@ The function itself is not modified in any way by `@task` so the function can be
 Namespaces can also be used to group sets of related tasks by using the `@namespace` decorator.
 Note that the decorator accepts no parameters. The function that it decorates must also not accept any parameters.
 
+A default task can be defined by setting `default` to a string corresponding to the name of the task function in the `Snakefile`.
+
 Below is an example defining regular tasks, and namespaced tasks.
 
 ```python
 from snake import *
 
+default = 'build:tools'
+
+
 @task("Bootstraps the environment")
 def bootstrap():
     sh('echo Bootstrapping...')
+
 
 @namespace
 def build():

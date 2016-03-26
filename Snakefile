@@ -1,5 +1,4 @@
 from snake import *
-
 import os
 
 

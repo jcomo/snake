@@ -20,39 +20,41 @@ class SnakeTests(IntegrationTest):
 
         result = self.execute('snake blah')
 
-        self.assertStatusEqual(result, 1)
         self.assertStdoutEmpty(result)
         self.assertStderrEqual(result, ["Don't know how to build task: blah"])
+        self.assertStatusEqual(result, 1)
 
     def test_it_runs_default_task_when_none_specified(self):
         self.use_snakefile("""
             from snake import *
 
-            @task("Default")
-            def default():
+            default = 'greet'
+
+            @task("Greet")
+            def greet():
                 print 'hi'
         """)
 
         result = self.execute('snake')
 
-        self.assertStatusEqual(result, 0)
-        self.assertStdoutEqual(result, ['hi'])
         self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['hi'])
+        self.assertStatusEqual(result, 0)
 
     def test_it_outputs_command_when_running_shell(self):
         self.use_snakefile("""
             from snake import *
 
-            @task("Default")
-            def default():
+            @task("Test")
+            def test():
                 sh('true')
         """)
 
-        result = self.execute('snake')
+        result = self.execute('snake test')
 
-        self.assertStatusEqual(result, 0)
-        self.assertStdoutEqual(result, ['true'])
         self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['true'])
+        self.assertStatusEqual(result, 0)
 
     def test_it_runs_namespaced_commands(self):
         self.use_snakefile("""
@@ -94,16 +96,16 @@ class SnakeTests(IntegrationTest):
         self.use_snakefile("""
             from snake import *
 
-            @task("Default")
-            def default():
+            @task("Test")
+            def test():
                 sh('blah')
         """)
 
-        result = self.execute('snake')
+        result = self.execute('snake test')
 
-        self.assertStatusEqual(result, 127)
-        self.assertStdoutEqual(result, ['blah'])
         self.assertStderrMatchesLine(result, r'blah.*command not found')
+        self.assertStdoutEqual(result, ['blah'])
+        self.assertStatusEqual(result, 127)
 
     def test_it_displays_all_available_tasks(self):
         self.use_snakefile("""
