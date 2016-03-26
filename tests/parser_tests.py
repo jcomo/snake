@@ -39,9 +39,5 @@ class CommandLineParserTests(TestCase):
         self.assertEqual({'token': 'abc', 'dir': 'env'}, args)
         self.assertEqual({'verbose': True}, flags)
 
-    def test_it_raises_assertion_when_flags_specified_after_tasks(self):
-        with self.assertRaisesRegexp(AssertionError, 'flags must be specified before'):
-            self._parse_command_line('--thing task -T')
-
     def _parse_command_line(self, line):
         return CommandLineParser.parse(line.split(' '))

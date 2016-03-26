@@ -1,6 +1,10 @@
 from inspect import getargspec
 
 
+class NoSuchTaskException(Exception):
+    pass
+
+
 class Task(object):
     def __init__(self, func, description):
         self.func = func
@@ -64,7 +68,7 @@ class TaskRegistry(object):
         try:
             task = self._tasks[label]
         except KeyError:
-            raise KeyError(friendly)
+            raise NoSuchTaskException(friendly)
 
         task.execute(**kwargs)
 
