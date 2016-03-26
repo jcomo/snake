@@ -5,10 +5,10 @@ class SnakeTests(IntegrationTest):
     def test_it_exits_with_error_when_no_snakefile_found(self):
         result = self.execute('snake')
 
-        self.assertStatusEqual(result, 1)
         self.assertStdoutEmpty(result)
         self.assertStderrMatches(result, r'^snake aborted!$')
         self.assertStderrMatches(result, r'^No Snakefile found$')
+        self.assertStatusEqual(result, 1)
 
     def test_it_exits_with_error_when_task_name_not_found(self):
         self.use_snakefile("""

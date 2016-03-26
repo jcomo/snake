@@ -11,8 +11,3 @@ def bootstrap():
 @task("Install development dependencies")
 def install():
     sh('env/bin/pip install -r requirements.txt')
-
-
-@task("Blah")
-def test():
-    sh('curl thangs')
