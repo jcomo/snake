@@ -61,14 +61,18 @@ class Application(object):
         return module.startswith(library_path)
 
     def _load_manifest(self, opts):
-        filename = opts.filename
+        filename = opts.filename or 'Snakefile'
         if not path.isabs(filename):
             filename = path.join(getcwd(), filename)
 
         try:
             module = load_source('Snakefile', filename)
         except IOError as e:
-            raise Exception("No Snakefile found")
+            message = "No Snakefile found"
+            if opts.filename:
+                message += " (looking for: %s)" % opts.filename
+
+            raise Exception(message)
         else:
             self._register_default_task(module)
 

@@ -9,7 +9,7 @@ class ApplicationArgsParser(object):
                           help="Display the tasks with descriptions and exits")
         parser.add_option('-t', '--trace', dest='trace', action='store_true',
                           help="Turn on verbose backtraces")
-        parser.add_option('-f', '--snakefile', dest='filename', default='Snakefile', metavar='FILE',
+        parser.add_option('-f', '--snakefile', dest='filename', metavar='FILE',
                           help="Use FILE as the Snakefile")
 
         opts, remaining = parser.parse_args(tokens)
