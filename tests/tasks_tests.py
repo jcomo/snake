@@ -15,9 +15,16 @@ class Flag(object):
 
 
 class TaskTests(TestCase):
-    @skip('Implement me')
     def test_executing_runs_underlying_function(self):
-        pass
+        called = Flag()
+
+        def flag():
+            called.set()
+
+        task = Task(flag, "Test")
+
+        task.execute()
+        self.assertTrue(called)
 
     @skip('Not sure if this is necessary (yet)')
     def test_it_only_passes_kwargs_that_function_knows_about(self):
