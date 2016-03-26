@@ -100,8 +100,8 @@ class TaskRegistryTests(TestCase):
             pass
 
         expected = [
-            'compile      # Compiles',
             'build        # Builds',
+            'compile      # Compiles',
         ]
 
         self.assertEqual('\n'.join(expected), self.registry.view_all())

@@ -38,6 +38,11 @@ class Snake(object):
         except IndexError:
             subcommand = 'default'
 
+        # TODO: make a parser for args, kwargs, etc
+        if subcommand == '-T':
+            self.info(self.registry.view_all())
+            return
+
         try:
             self.registry.execute(subcommand)
         except KeyError:

@@ -104,3 +104,35 @@ class SnakeTests(IntegrationTest):
         self.assertStatusEqual(result, 127)
         self.assertStdoutEqual(result, ['blah'])
         self.assertStderrMatchesLine(result, r'blah.*command not found')
+
+    def test_it_displays_all_available_tasks(self):
+        self.use_snakefile("""
+            from snake import *
+
+            @namespace
+            def sub():
+
+                @task("One")
+                def one():
+                    pass
+
+                @task("Two")
+                def two():
+                    pass
+
+            @task("Three")
+            def three():
+                pass
+        """)
+
+        result = self.execute('snake -T')
+
+        expected = [
+            'sub:one      # One',
+            'sub:two      # Two',
+            'three        # Three',
+        ]
+
+        self.assertStatusEqual(result, 0)
+        self.assertStdoutEqual(result, expected)
+        self.assertStderrEmpty(result)
