@@ -4,8 +4,9 @@ from imp import load_source
 from os import environ
 from sys import exit, stderr, argv
 
-from .tasks import TaskRegistry
+from .parser import CommandLineParser as parser
 from .shell import ShellWrapper
+from .tasks import TaskRegistry
 
 
 class Snake(object):
@@ -39,18 +40,14 @@ class Snake(object):
         self.registry.default = default_task
 
     def _execute_command(self):
-        try:
-            tasks = [argv[1]]
-        except IndexError:
-            tasks = []
+        tasks, args, flags = parser.parse(argv[1:])
 
-        # TODO: make a parser for args, kwargs, etc
-        if '-T' in tasks:
+        if 'T' in flags:
             self.info(self.registry.view_all())
             return
 
         try:
-            self.registry.execute(tasks)
+            self.registry.execute(tasks, **args)
         except KeyError as e:
             self.error("Don't know how to build task: %s" % e.message)
             self.abort(1)

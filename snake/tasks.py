@@ -56,6 +56,10 @@ class TaskRegistry(object):
             for label in tasks:
                 self._execute_task(label, label, **kwargs)
 
+    def view_all(self):
+        tasks = [(label, t.description) for label, t in self._tasks.iteritems()]
+        return TaskListFormatter(tasks).tableize(padding=4)
+
     def _execute_task(self, label, friendly, **kwargs):
         try:
             task = self._tasks[label]
@@ -63,10 +67,6 @@ class TaskRegistry(object):
             raise KeyError(friendly)
 
         task.execute(**kwargs)
-
-    def view_all(self):
-        tasks = [(label, t.description) for label, t in self._tasks.iteritems()]
-        return TaskListFormatter(tasks).tableize(padding=4)
 
     def _add_task(self, f, desc):
         label = ':'.join(self.__working_namespace + [f.__name__])

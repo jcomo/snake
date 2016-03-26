@@ -56,6 +56,27 @@ class SnakeTests(IntegrationTest):
         self.assertStdoutEqual(result, ['true'])
         self.assertStatusEqual(result, 0)
 
+    def test_it_passes_arguments_to_tasks(self):
+        self.use_snakefile("""
+            from snake import *
+
+            @task("Say hello")
+            def hello(name='World'):
+                print 'Hello, %s!' % name
+        """)
+
+        result = self.execute('snake hello')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['Hello, World!'])
+        self.assertStatusEqual(result, 0)
+
+        result = self.execute('snake hello name=Unittest')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['Hello, Unittest!'])
+        self.assertStatusEqual(result, 0)
+
     def test_it_runs_namespaced_commands(self):
         self.use_snakefile("""
             from snake import *
