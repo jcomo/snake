@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from snake.parser import CommandLineParser
+from snake.parser import ApplicationArgsParser
 
 
 class CommandLineParserTests(TestCase):
@@ -20,24 +20,19 @@ class CommandLineParserTests(TestCase):
         self.assertEqual(expected, args)
 
     def test_it_parses_flag_options(self):
-        _, _, flags = self._parse_command_line('-T --verbose --exclude=env')
+        _, _, opts = self._parse_command_line('-f file --trace')
 
-        expected = {
-            'T': True,
-            'verbose': True,
-            'exclude': 'env',
-        }
-
-        self.assertEqual(expected, flags)
+        self.assertEqual('file', opts.filename)
+        self.assertEqual(True, opts.trace)
 
     def test_it_parses_everything_together(self):
-        command = '--verbose bootstrap install token=abc dir=env'
+        command = '-f file bootstrap install token=abc dir=env'
 
-        tasks, args, flags = self._parse_command_line(command)
+        tasks, args, opts = self._parse_command_line(command)
 
         self.assertEqual(['bootstrap', 'install'], tasks)
         self.assertEqual({'token': 'abc', 'dir': 'env'}, args)
-        self.assertEqual({'verbose': True}, flags)
+        self.assertEqual('file', opts.filename)
 
     def _parse_command_line(self, line):
-        return CommandLineParser.parse(line.split(' '))
+        return ApplicationArgsParser.parse(line.split(' '))

@@ -1,14 +1,14 @@
 from mock import Mock, patch
 from unittest import TestCase
 
-from snake.snake import Snake
+from snake.snake import Application
 from snake.shell import ShellWrapper, CommandFailedException
 
 
 class ShellWrapperTests(TestCase):
     def setUp(self):
         super(ShellWrapperTests, self).setUp()
-        self.logger = Mock(spec=Snake)
+        self.logger = Mock(spec=Application)
         self.shell = ShellWrapper(self.logger)
 
     def test_it_prints_and_executes_command(self):

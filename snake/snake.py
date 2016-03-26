@@ -5,12 +5,12 @@ from os import environ, path, getcwd
 from sys import exit, stderr, argv, exc_info
 from traceback import extract_tb
 
-from .parser import CommandLineParser as parser
+from .parser import ApplicationArgsParser as parser
 from .shell import ShellWrapper
 from .tasks import TaskRegistry, NoSuchTaskException
 
 
-class Snake(object):
+class Application(object):
     def __init__(self):
         self.registry = TaskRegistry()
 
@@ -31,7 +31,7 @@ class Snake(object):
     def _run(self, tasks, args, opts):
         self._load_manifest(opts)
 
-        if 'T' in opts:
+        if opts.show_tasks:
             self._list_tasks()
         else:
             self._execute_command(tasks, args)
@@ -40,11 +40,10 @@ class Snake(object):
         self.error('snake aborted!')
         self.error(e.message)
 
-        verbose = 'trace' in opts
         tb = extract_tb(exc_info()[2])
-        self._print_stack_trace(tb, verbose)
+        self._print_stack_trace(tb, verbose=opts.trace)
 
-        if not verbose:
+        if not opts.trace:
             self.error('')  # TODO: Replace this with the task hierarchy
             self.error('(See full trace by running task with --trace)')
 
@@ -62,7 +61,7 @@ class Snake(object):
         return module.startswith(library_path)
 
     def _load_manifest(self, opts):
-        filename = opts.get('f', 'Snakefile')
+        filename = opts.filename
         if not path.isabs(filename):
             filename = path.join(getcwd(), filename)
 
@@ -87,7 +86,7 @@ class Snake(object):
             raise Exception("Don't know how to build task: %s" % e.message)
 
 
-_instance = Snake()
+_instance = Application()
 _runner = ShellWrapper(_instance)
 
 env = environ

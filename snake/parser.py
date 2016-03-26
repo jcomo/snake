@@ -1,23 +1,34 @@
-class CommandLineParser(object):
+from optparse import OptionParser
+
+
+class ApplicationArgsParser(object):
     @classmethod
     def parse(cls, tokens):
-        return cls().parse_command(tokens)
+        parser = OptionParser()
+        parser.add_option('-T', '--tasks', dest='show_tasks', action='store_true',
+                          help="Display the tasks with descriptions and exits")
+        parser.add_option('-t', '--trace', dest='trace', action='store_true',
+                          help="Turn on verbose backtraces")
+        parser.add_option('-f', '--snakefile', dest='filename', default='Snakefile', metavar='FILE',
+                          help="Use FILE as the Snakefile")
+
+        opts, remaining = parser.parse_args(tokens)
+        tasks, args = cls()._parse_positional_args(remaining)
+
+        return tasks, args, opts
 
     def __init__(self):
         self._tasks = []
         self._args = {}
-        self._flags = {}
 
-    def parse_command(self, tokens):
+    def _parse_positional_args(self, tokens):
         for token in tokens:
-            if token.startswith('-'):
-                self._parse_flag(token)
-            elif '=' in token:
+            if '=' in token:
                 self._parse_arg(token)
             else:
                 self._parse_task(token)
 
-        return self._tasks, self._args, self._flags
+        return self._tasks, self._args
 
     def _parse_task(self, token):
         self._tasks.append(token)
@@ -28,18 +39,3 @@ class CommandLineParser(object):
         """
         key, value = token.split('=')
         self._args[key] = value
-
-    def _parse_flag(self, token):
-        """
-        Flags can be passed as --flag=value, --flag, or -f. In the case that
-        flags are passed in without a value, their respective value in the
-        returned dict will be True
-        """
-        flag = token.lstrip('-')
-
-        try:
-            key, value = flag.split('=')
-        except ValueError:
-            key, value = flag, True
-
-        self._flags[key] = value
