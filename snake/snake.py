@@ -41,7 +41,7 @@ class Application(object):
 
     def _handle_exception(self, e, opts):
         self.error('snake aborted!')
-        self.error(e.message)
+        self.error(str(e))
 
         tb = extract_tb(exc_info()[2])
         self._print_stack_trace(tb, verbose=opts.trace)
@@ -90,7 +90,7 @@ class Application(object):
         try:
             self.registry.execute(tasks, **args)
         except NoSuchTaskException as e:
-            raise Exception("Don't know how to build task: %s" % e.message)
+            raise Exception("Don't know how to build task: %s" % e)
 
 
 _instance = Application()
