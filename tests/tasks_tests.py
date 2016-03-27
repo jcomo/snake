@@ -1,6 +1,6 @@
 from StringIO import StringIO
 
-from unittest import TestCase, skip
+from unittest import TestCase
 
 from snake.tasks import Task, TaskRegistry, NoSuchTaskException
 

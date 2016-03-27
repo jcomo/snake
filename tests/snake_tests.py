@@ -125,7 +125,7 @@ class SnakeTests(IntegrationTest):
 
         result = self.execute('snake test')
 
-        self.assertStderrMatches(result, r'blah.*command not found')
+        self.assertStderrMatches(result, r'blah.* not found')
         self.assertStdoutEqual(result, ['blah'])
         self.assertStatusEqual(result, 1)
 
