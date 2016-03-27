@@ -1,4 +1,4 @@
-# snake
+# snake ![Build Status](https://travis-ci.org/jcomo/snake.svg?branch=master)
 
 Build script utility for Python. Ported from the popular Ruby tool, [Rake](https://github.com/ruby/rake).
 
