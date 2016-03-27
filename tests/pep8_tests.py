@@ -1,5 +1,5 @@
 from subprocess import call
-from unittest import TestCase
+from unittest2 import TestCase
 
 
 class PEP8Tests(TestCase):

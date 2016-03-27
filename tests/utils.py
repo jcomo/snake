@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest2 import TestCase
 
 from os import path, getcwd, chdir, makedirs, remove, environ as env
 from re import search
