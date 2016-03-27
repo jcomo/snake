@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from six import StringIO
 
 from unittest2 import TestCase
 
@@ -33,8 +33,8 @@ class TaskTests(TestCase):
         output = StringIO()
 
         def foo(a, b=2):
-            output.write(a)
-            output.write(b)
+            output.write(str(a))
+            output.write(str(b))
 
         task = Task(foo, "Description")
         task.execute(**args)

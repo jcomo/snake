@@ -10,8 +10,8 @@ from time import time
 class ProcessResult(object):
     def __init__(self, status, stdout, stderr):
         self.status = status
-        self.stdout = stdout.strip().split('\n')
-        self.stderr = stderr.strip().split('\n')
+        self.stdout = stdout.decode('utf-8').strip().split('\n')
+        self.stderr = stderr.decode('utf-8').strip().split('\n')
 
 
 class ProcessResultAssertions(object):

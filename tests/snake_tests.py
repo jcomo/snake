@@ -27,13 +27,14 @@ class SnakeTests(IntegrationTest):
 
     def test_it_runs_default_task_when_none_specified(self):
         self.use_snakefile("""
+            from __future__ import print_function
             from snake import *
 
             default = 'greet'
 
             @task("Greet")
             def greet():
-                print 'hi'
+                print('hi')
         """)
 
         result = self.execute('snake')
@@ -59,11 +60,12 @@ class SnakeTests(IntegrationTest):
 
     def test_it_passes_arguments_to_tasks(self):
         self.use_snakefile("""
+            from __future__ import print_function
             from snake import *
 
             @task("Say hello")
             def hello(name='World'):
-                print 'Hello, %s!' % name
+                print('Hello, %s!' % name)
         """)
 
         result = self.execute('snake hello')
@@ -101,11 +103,12 @@ class SnakeTests(IntegrationTest):
         os.environ['THING'] = 'hey'
 
         self.use_snakefile("""
+            from __future__ import print_function
             from snake import *
 
             @task("Check environment")
             def check():
-                print env.get('THING')
+                print(env.get('THING'))
         """)
 
         result = self.execute('snake check')

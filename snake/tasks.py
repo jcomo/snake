@@ -1,4 +1,5 @@
 from inspect import getargspec
+from six import iteritems
 
 
 class NoSuchTaskException(Exception):
@@ -25,8 +26,8 @@ class Task(object):
         self.func(**self._sanitize_keyword_args(kwargs))
 
     def _sanitize_keyword_args(self, kwargs):
-        only_known_keywords = lambda (k, _): k in self._func_args()
-        return dict(filter(only_known_keywords, kwargs.iteritems()))
+        only_known_keywords = lambda kv: kv[0] in self._func_args()
+        return dict(filter(only_known_keywords, iteritems(kwargs)))
 
     def _func_args(self):
         args, _, _, _ = getargspec(self.func)
@@ -77,7 +78,7 @@ class TaskRegistry(object):
         :param f: the function to use as a namespace
         :return: the function unmodified
         """
-        self.__working_namespace.append(f.func_name)
+        self.__working_namespace.append(f.__name__)
         f()
         self.__working_namespace.pop()
         return f
@@ -102,7 +103,7 @@ class TaskRegistry(object):
 
         :return: string formatted as a table of tasks
         """
-        tasks = [(label, t.description) for label, t in self._tasks.iteritems()]
+        tasks = [(label, t.description) for label, t in iteritems(self._tasks)]
         return TaskListFormatter(tasks).tableize(self.name)
 
     def _execute_task(self, label, friendly, **kwargs):
@@ -114,20 +115,25 @@ class TaskRegistry(object):
         task.execute(**kwargs)
 
     def _add_task(self, f, desc):
-        label = ':'.join(self.__working_namespace + [f.func_name])
+        label = ':'.join(self.__working_namespace + [f.__name__])
         self._tasks[label] = Task(f, desc)
 
 
 class TaskListFormatter(object):
     def __init__(self, tasks):
+        """
+        Formats tasks in various ways.
+
+        :param tasks: list of task info pairs of (label, description)
+        """
         self._tasks = tasks
 
     def tableize(self, prefix):
-        by_label = lambda (label, _): label
-        by_length = lambda (label, _): len(label)
+        by_label = lambda task: task[0]
+        by_label_length = lambda task: len(task[0])
 
         try:
-            longest_task_label, _ = max(self._tasks, key=by_length)
+            longest_task_label, _ = max(self._tasks, key=by_label_length)
         except ValueError:
             return ''
 

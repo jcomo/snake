@@ -1,7 +1,6 @@
-from __future__ import print_function
-
 from imp import load_source
 from os import environ, path, getcwd
+from six import print_
 from sys import exit, stderr, argv, exc_info
 from traceback import extract_tb
 
@@ -13,15 +12,14 @@ from .tasks import TaskRegistry, NoSuchTaskException
 class Application(object):
     def __init__(self):
         self.registry = TaskRegistry('snake')
-        self.printer = print
 
     def info(self, message):
         """Logs a message to stdout"""
-        self.printer(message)
+        print_(message)
 
     def error(self, message):
         """Logs a message to stderr"""
-        self.printer(message, file=stderr)
+        print_(message, file=stderr)
 
     def run(self):
         tasks, args, opts = parser.parse(argv[1:])
