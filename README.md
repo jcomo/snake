@@ -33,7 +33,7 @@ def hello(name='World'):
 
 From the directory containing your `Snakefile`, you can run the `hello` task using
 
-```
+```sh
 snake hello  # echos "Hello, World!"
 snake hello name=Github  # echos "Hello, Github!"
 ```

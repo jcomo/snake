@@ -152,9 +152,9 @@ class SnakeTests(IntegrationTest):
         result = self.execute('snake -T')
 
         expected = [
-            'sub:one      # One',
-            'sub:two      # Two',
-            'three        # Three',
+            'snake sub:one  # One',
+            'snake sub:two  # Two',
+            'snake three    # Three',
         ]
 
         self.assertStderrEmpty(result)

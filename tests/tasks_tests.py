@@ -54,7 +54,7 @@ class TaskTests(TestCase):
 class TaskRegistryTests(TestCase):
     def setUp(self):
         super(TaskRegistryTests, self).setUp()
-        self.registry = TaskRegistry()
+        self.registry = TaskRegistry('snake')
 
     def test_function_can_be_called_normally_after_registration(self):
         called = Flag()
@@ -144,8 +144,8 @@ class TaskRegistryTests(TestCase):
             pass
 
         expected = [
-            'build        # Builds',
-            'compile      # Compiles',
+            'snake build    # Builds',
+            'snake compile  # Compiles',
         ]
 
         self.assertEqual('\n'.join(expected), self.registry.view_all())

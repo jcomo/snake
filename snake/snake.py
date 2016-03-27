@@ -12,13 +12,16 @@ from .tasks import TaskRegistry, NoSuchTaskException
 
 class Application(object):
     def __init__(self):
-        self.registry = TaskRegistry()
+        self.registry = TaskRegistry('snake')
+        self.printer = print
 
     def info(self, message):
-        print(message)
+        """Logs a message to stdout"""
+        self.printer(message)
 
     def error(self, message):
-        print(message, file=stderr)
+        """Logs a message to stderr"""
+        self.printer(message, file=stderr)
 
     def run(self):
         tasks, args, opts = parser.parse(argv[1:])

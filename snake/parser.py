@@ -1,18 +1,31 @@
 from optparse import OptionParser
 
+flags_parser = OptionParser()
+flags_parser.add_option('-T', '--tasks', dest='show_tasks', action='store_true',
+                        help="Display the tasks with descriptions and exits")
+flags_parser.add_option('-t', '--trace', dest='trace', action='store_true',
+                        help="Turn on verbose backtraces")
+flags_parser.add_option('-f', '--snakefile', dest='filename', metavar='FILE',
+                        help="Use FILE as the Snakefile")
+
 
 class ApplicationArgsParser(object):
+    """Parses the arguments used in the command line. Snake uses a combination
+    of option flags, positional, and keyword arguments. In order to properly
+    parse the arguments, a combination of OptionParser and custom parsing is
+    used. The option parser eats up all of the program options and the rest
+    is left as positional arguments to be parsed as task names and keyword
+    arguments for tasks.
+    """
     @classmethod
     def parse(cls, tokens):
-        parser = OptionParser()
-        parser.add_option('-T', '--tasks', dest='show_tasks', action='store_true',
-                          help="Display the tasks with descriptions and exits")
-        parser.add_option('-t', '--trace', dest='trace', action='store_true',
-                          help="Turn on verbose backtraces")
-        parser.add_option('-f', '--snakefile', dest='filename', metavar='FILE',
-                          help="Use FILE as the Snakefile")
+        """
+        Parses the command line and returns the list of tasks to execute, the
+        keyword arguments to use, and the program arguments passed in.
 
-        opts, remaining = parser.parse_args(tokens)
+        :return: tuple of tasks, keyword arguments, and program options
+        """
+        opts, remaining = flags_parser.parse_args(tokens)
         tasks, args = cls()._parse_positional_args(remaining)
 
         return tasks, args, opts
