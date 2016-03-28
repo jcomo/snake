@@ -1,6 +1,6 @@
 import re
 from inspect import getargspec
-from six import iteritems, itervalues
+from six import iteritems, iterkeys, itervalues
 
 
 class NoSuchTaskException(Exception):
@@ -37,20 +37,37 @@ class Task(object):
 
         :return: list of required arg names as strings
         """
+        positional_args, _ = self._positional_and_keyword_args()
+        return positional_args
+
+    def optional_args(self):
+        """Returns the list of optional arguments for the task.
+
+        :return: list of optional arg names as strings
+        """
+        _, keyword_args = self._positional_and_keyword_args()
+        return keyword_args
+
+    def _all_args(self):
+        positional_args, keyword_args = self._positional_and_keyword_args()
+        return positional_args + list(iterkeys(keyword_args))
+
+    def _positional_and_keyword_args(self):
         args, _, _, defaults = getargspec(self.func)
         if not defaults:
             defaults = ()
 
         number_of_positional_args = len(args) - len(defaults)
-        return args[:number_of_positional_args]
+        positional_args = args[:number_of_positional_args]
+
+        keywords = args[number_of_positional_args:]
+        keyword_args = dict(zip(keywords, defaults))
+
+        return positional_args, keyword_args
 
     def _sanitize_keyword_args(self, kwargs):
-        only_known_keywords = lambda kv: kv[0] in self._func_args()
+        only_known_keywords = lambda kv: kv[0] in self._all_args()
         return dict(filter(only_known_keywords, iteritems(kwargs)))
-
-    def _func_args(self):
-        args, _, _, _ = getargspec(self.func)
-        return args
 
     def _is_error_due_to_missing_arguments(self, e):
         # A bit of a hack, but we want to do this to make the error more specific
@@ -147,17 +164,44 @@ class TaskListFormatter(object):
         self._tasks = tasks
 
     def tableize(self, prefix):
-        by_label = lambda task: task.label
-        by_label_length = lambda task: len(task.label)
-
-        try:
-            task_with_longest_label = max(self._tasks, key=by_label_length)
-        except ValueError:
+        if not self._tasks:
             return ''
 
-        width = len(task_with_longest_label.label)
-        sorted_tasks = sorted(self._tasks, key=by_label)
+        tasks = [('%s%s' % (t.label, self._render_arg_list(t)), t.description)
+                 for t in self._tasks]
+
+        by_signature_length = lambda task: len(task[0])
+        task_with_longest_signature = max(tasks, key=by_signature_length)
+        width = len(task_with_longest_signature[0])
+
+        by_signature = lambda task: task[0]
+        sorted_tasks = sorted(tasks, key=by_signature)
 
         return '\n'.join('%s %s  # %s' %
-                         (prefix, t.label.ljust(width), t.description)
-                         for t in sorted_tasks)
+                         (prefix, signature.ljust(width), description)
+                         for signature, description in sorted_tasks)
+
+    def _render_arg_list(self, task):
+        required_args = task.required_args()
+        optional_args = task.optional_args()
+
+        # Prefix the arg list with an empty space so that when the components are joined,
+        # it will be padding if there are arguments or nothing if there aren't
+        parts = ['']
+
+        if required_args:
+            parts.append(' '.join(self._format_required_arg(arg)
+                                  for arg in required_args))
+
+        if optional_args:
+            parts.append(' '.join(self._format_optional_arg(arg)
+                                  for arg in iteritems(optional_args)))
+
+        return ' '.join(parts)
+
+    def _format_required_arg(self, arg):
+        return '%s={%s}' % (arg, arg)
+
+    def _format_optional_arg(self, arg):
+        name, default = arg
+        return '[%s=%s]' % (name, default)

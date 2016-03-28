@@ -19,7 +19,7 @@ def install():
 def test():
 
     @task("Run tests in current virtualenv")
-    def current(test):
+    def current(test=''):
         sh('%s/bin/nosetests -s %s' % (ENV, test))
 
     @task("Run tests for all support distributions")

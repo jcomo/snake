@@ -69,12 +69,12 @@ def bootstrap():
 def build():
 
     @task("Builds the tools")
-    def tools():
-        sh('echo Building the tools')
+    def tools(typ='core'):
+        sh('echo Building the %s tools' % typ)
 
     @task("Builds the application")
-    def app():
-        sh('echo Building the application')
+    def app(target):
+        sh('echo Building the application for %s' % target)
 ```
 
 ### Listing Tasks
@@ -87,9 +87,9 @@ Here is example output using the `Snakefile` from the previous section.
 ```
 $ snake -T
 
-bootstrap        # Bootstraps the environment
-build:app        # Builds the tools
-build:tools      # Builds the application
+bootstrap                  # Bootstraps the environment
+build:app target={target}  # Builds the tools
+build:tools [typ=core]     # Builds the application
 ```
 
 ## Development Setup

@@ -102,6 +102,38 @@ class TaskTests(TestCase):
 
         self.assertEqual(['a'], task.required_args())
 
+    def test_optional_args_returns_list_of_keyword_args(self):
+        def foo(one=1, two=2):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual({'one': 1, 'two': 2}, task.optional_args())
+
+    def test_optional_args_does_not_include_positional_args(self):
+        def foo(one, two=2, three=3):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual({'two': 2, 'three': 3}, task.optional_args())
+
+    def test_optional_args_does_not_include_splat_args(self):
+        def foo(*args):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual({}, task.optional_args())
+
+    def test_optional_args_does_not_include_splat_kwargs(self):
+        def foo(one=1, **kwargs):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual({'one': 1}, task.optional_args())
+
 
 class TaskRegistryTests(TestCase):
     def setUp(self):
@@ -185,6 +217,10 @@ class TaskRegistryTests(TestCase):
         self.registry.execute(['deeper:name:space'])
         self.assertTrue(called)
 
+    def test_it_renders_nothing_when_no_tasks(self):
+        table = self.registry.view_all()
+        self.assertEqual('', table)
+
     def test_it_renders_tasks_in_table_form(self):
 
         @self.registry.add_task("Builds")
@@ -202,6 +238,18 @@ class TaskRegistryTests(TestCase):
 
         self.assertEqual('\n'.join(expected), self.registry.view_all())
 
-    def test_it_renders_nothing_when_no_tasks(self):
-        table = self.registry.view_all()
-        self.assertEqual('', table)
+    def test_it_renders_tasks_with_arguments(self):
+        @self.registry.add_task("Builds")
+        def build(medium='container'):
+            pass
+
+        @self.registry.add_task("Compiles")
+        def compile(target, optimization='full'):
+            pass
+
+        expected = [
+            'snake build [medium=container]                     # Builds',
+            'snake compile target={target} [optimization=full]  # Compiles',
+        ]
+
+        self.assertEqual('\n'.join(expected), self.registry.view_all())
