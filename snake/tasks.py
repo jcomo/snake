@@ -1,6 +1,6 @@
 import re
 from inspect import getargspec
-from six import iteritems, iterkeys, itervalues
+from six import iteritems, iterkeys, itervalues, PY2
 
 
 class NoSuchTaskException(Exception):
@@ -72,8 +72,14 @@ class Task(object):
     def _is_error_due_to_missing_arguments(self, e):
         # A bit of a hack, but we want to do this to make the error more specific
         # and easy to understand for the end user
-        missing_args_pattern = r'%s\(\) takes exactly \d{1,2} arguments? \(\d{1,2} given\)' % self.func.__name__
-        return re.search(missing_args_pattern, str(e))
+        func = self.func.__name__
+
+        if PY2:
+            pattern = r'%s\(\) takes exactly \d{1,2} .*arguments? \(\d{1,2} given\)' % func
+        else:
+            pattern = r'%s\(\) missing \d{1,2} required positional argument:' % func
+
+        return re.search(pattern, str(e))
 
 
 class TaskRegistry(object):
