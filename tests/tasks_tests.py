@@ -23,7 +23,7 @@ class TaskTests(TestCase):
         def flag():
             called.set()
 
-        task = Task(flag, "Test")
+        task = Task('flag', flag, "Test")
 
         task.execute()
         self.assertTrue(called)
@@ -36,7 +36,7 @@ class TaskTests(TestCase):
             output.write(str(a))
             output.write(str(b))
 
-        task = Task(foo, "Description")
+        task = Task('foo', foo, "Description")
         task.execute(**args)
 
         self.assertEqual('12', output.getvalue())
@@ -47,7 +47,7 @@ class TaskTests(TestCase):
         def foo(a, b):
             pass
 
-        task = Task(foo, "Description")
+        task = Task('foo', foo, "Description")
         task.execute(**args)
 
     def test_it_uses_friendly_error_message_when_missing_positional_args(self):
@@ -56,17 +56,16 @@ class TaskTests(TestCase):
         def bar(a, b):
             pass
 
-        # task = Task('foo:bar', "Description")
-        task = Task(bar, "Description")
+        task = Task('foo:bar', bar, "Description")
 
-        with self.assertRaisesRegexp(TypeError, r"^bar requires arguments: a, b$"):
+        with self.assertRaisesRegexp(TypeError, r"^foo:bar requires arguments: a, b$"):
             task.execute(**args)
 
     def test_it_bubbles_up_other_type_errors(self):
         def foo():
             1 + ''
 
-        task = Task(foo, "Description")
+        task = Task('foo', foo, "Description")
 
         with self.assertRaisesRegexp(TypeError, r"unsupported operand type"):
             task.execute()

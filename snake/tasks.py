@@ -1,6 +1,6 @@
 import re
 from inspect import getargspec
-from six import iteritems
+from six import iteritems, itervalues
 
 
 class NoSuchTaskException(Exception):
@@ -11,8 +11,8 @@ class Task(object):
     """A task is the basic building block in a Snakefile manifest. Each task
     has an underlying function and a short description about what the task does.
     """
-    def __init__(self, func, description):
-        self.label = func.__name__  # TODO: use this instead of of the tuples
+    def __init__(self, label, func, description):
+        self.label = label
         self.func = func
         self.description = description
 
@@ -55,7 +55,7 @@ class Task(object):
     def _is_error_due_to_missing_arguments(self, e):
         # A bit of a hack, but we want to do this to make the error more specific
         # and easy to understand for the end user
-        missing_args_pattern = r'%s\(\) takes exactly \d{1,2} arguments \(\d{1,2} given\)' % self.func.__name__
+        missing_args_pattern = r'%s\(\) takes exactly \d{1,2} arguments? \(\d{1,2} given\)' % self.func.__name__
         return re.search(missing_args_pattern, str(e))
 
 
@@ -126,7 +126,7 @@ class TaskRegistry(object):
 
         :return: string formatted as a table of tasks
         """
-        tasks = [(label, t.description) for label, t in iteritems(self._tasks)]
+        tasks = [(t.label, t.description) for t in itervalues(self._tasks)]
         return TaskListFormatter(tasks).tableize(self.name)
 
     def _execute_task(self, label, friendly, **kwargs):
@@ -139,7 +139,7 @@ class TaskRegistry(object):
 
     def _add_task(self, f, desc):
         label = ':'.join(self.__working_namespace + [f.__name__])
-        self._tasks[label] = Task(f, desc)
+        self._tasks[label] = Task(label, f, desc)
 
 
 class TaskListFormatter(object):
