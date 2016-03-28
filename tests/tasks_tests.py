@@ -50,6 +50,27 @@ class TaskTests(TestCase):
         task = Task(foo, "Description")
         task.execute(**args)
 
+    def test_it_uses_friendly_error_message_when_missing_positional_args(self):
+        args = {'a': 1}
+
+        def bar(a, b):
+            pass
+
+        # task = Task('foo:bar', "Description")
+        task = Task(bar, "Description")
+
+        with self.assertRaisesRegexp(TypeError, r"^bar requires arguments: a, b$"):
+            task.execute(**args)
+
+    def test_it_bubbles_up_other_type_errors(self):
+        def foo():
+            1 + ''
+
+        task = Task(foo, "Description")
+
+        with self.assertRaisesRegexp(TypeError, r"unsupported operand type"):
+            task.execute()
+
 
 class TaskRegistryTests(TestCase):
     def setUp(self):

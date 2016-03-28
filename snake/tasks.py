@@ -1,3 +1,4 @@
+import re
 from inspect import getargspec
 from six import iteritems
 
@@ -7,23 +8,41 @@ class NoSuchTaskException(Exception):
 
 
 class Task(object):
-    """
-    A task is the basic building block in a Snakefile manifest. Each task has an
-    underlying function and a short description about what the task does.
+    """A task is the basic building block in a Snakefile manifest. Each task
+    has an underlying function and a short description about what the task does.
     """
     def __init__(self, func, description):
+        self.label = func.__name__  # TODO: use this instead of of the tuples
         self.func = func
         self.description = description
 
     def execute(self, **kwargs):
-        """
-        Executes the underlying function in the task.
+        """Executes the underlying function in the task.
 
         :param kwargs: the keyword arguments to pass to the function during
                        execution. Keywords that are not needed by the underlying
                        function will be ignored.
         """
-        self.func(**self._sanitize_keyword_args(kwargs))
+        try:
+            self.func(**self._sanitize_keyword_args(kwargs))
+        except TypeError as e:
+            if self._is_error_due_to_missing_arguments(e):
+                args = ', '.join(self.required_args())
+                raise TypeError("%s requires arguments: %s" % (self.label, args))
+            else:
+                raise
+
+    def required_args(self):
+        """Returns the list of required arguments for the task.
+
+        :return: list of required arg names as strings
+        """
+        args, _, _, defaults = getargspec(self.func)
+        if not defaults:
+            defaults = ()
+
+        number_of_positional_args = len(args) - len(defaults)
+        return args[:number_of_positional_args]
 
     def _sanitize_keyword_args(self, kwargs):
         only_known_keywords = lambda kv: kv[0] in self._func_args()
@@ -32,6 +51,12 @@ class Task(object):
     def _func_args(self):
         args, _, _, _ = getargspec(self.func)
         return args
+
+    def _is_error_due_to_missing_arguments(self, e):
+        # A bit of a hack, but we want to do this to make the error more specific
+        # and easy to understand for the end user
+        missing_args_pattern = r'%s\(\) takes exactly \d{1,2} arguments \(\d{1,2} given\)' % self.func.__name__
+        return re.search(missing_args_pattern, str(e))
 
 
 class TaskRegistry(object):
@@ -84,8 +109,7 @@ class TaskRegistry(object):
         return f
 
     def execute(self, tasks, **kwargs):
-        """
-        Executes a number of tasks in order. The tasks are referenced by
+        """Executes a number of tasks in order. The tasks are referenced by
         their names. Executes the default task if no tasks are supplied.
 
         :param tasks: list of task labels
@@ -98,8 +122,7 @@ class TaskRegistry(object):
                 self._execute_task(label, label, **kwargs)
 
     def view_all(self):
-        """
-        Formats the tasks using each task's label and description.
+        """Formats the tasks using each task's label and description.
 
         :return: string formatted as a table of tasks
         """
@@ -121,8 +144,7 @@ class TaskRegistry(object):
 
 class TaskListFormatter(object):
     def __init__(self, tasks):
-        """
-        Formats tasks in various ways.
+        """Formats tasks in various ways.
 
         :param tasks: list of task info pairs of (label, description)
         """

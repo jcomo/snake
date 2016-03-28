@@ -99,7 +99,7 @@ class IntegrationTest(TestCase, ProcessResultAssertions):
 
     @classmethod
     def _update_pythonpath_to_prefer_dev_version(cls):
-        env['PYTHONPATH'] = cls._current_dir + env.get('PYTHONPATH', '')
+        env['PYTHONPATH'] = cls._current_dir + ':' + env.get('PYTHONPATH', '')
         env['PATH'] = path.join(cls._current_dir, 'bin') + ':' + env.get('PATH', '')
 
     @classmethod
