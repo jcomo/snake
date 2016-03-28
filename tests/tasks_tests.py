@@ -70,6 +70,38 @@ class TaskTests(TestCase):
         with self.assertRaisesRegexp(TypeError, r"unsupported operand type"):
             task.execute()
 
+    def test_required_args_returns_list_of_positional_args(self):
+        def foo(a, b):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual(['a', 'b'], task.required_args())
+
+    def test_required_args_returns_only_positional_args(self):
+        def foo(a, b, c=1, d=2):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual(['a', 'b'], task.required_args())
+
+    def test_required_args_ignores_splat_args(self):
+        def foo(*args):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual([], task.required_args())
+
+    def test_required_args_ignores_splat_kwargs(self):
+        def foo(a, **kwargs):
+            pass
+
+        task = Task('foo', foo, "Description")
+
+        self.assertEqual(['a'], task.required_args())
+
 
 class TaskRegistryTests(TestCase):
     def setUp(self):
