@@ -1,6 +1,7 @@
 import re
 from inspect import getargspec
-from six import iteritems, iterkeys, itervalues, PY2
+from six import iteritems, iterkeys, itervalues
+from sys import version_info
 
 
 class NoSuchTaskException(Exception):
@@ -74,7 +75,8 @@ class Task(object):
         # and easy to understand for the end user
         func = self.func.__name__
 
-        if PY2:
+        # This error message seems to have been changed in Python 3.2
+        if version_info <= (3, 2):
             pattern = r'%s\(\) takes exactly \d{1,2} .*arguments? \(\d{1,2} given\)' % func
         else:
             pattern = r'%s\(\) missing \d{1,2} required positional argument:' % func
