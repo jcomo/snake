@@ -126,7 +126,7 @@ class TaskRegistry(object):
 
         :return: string formatted as a table of tasks
         """
-        tasks = [(t.label, t.description) for t in itervalues(self._tasks)]
+        tasks = [task for task in itervalues(self._tasks)]
         return TaskListFormatter(tasks).tableize(self.name)
 
     def _execute_task(self, label, friendly, **kwargs):
@@ -144,23 +144,20 @@ class TaskRegistry(object):
 
 class TaskListFormatter(object):
     def __init__(self, tasks):
-        """Formats tasks in various ways.
-
-        :param tasks: list of task info pairs of (label, description)
-        """
         self._tasks = tasks
 
     def tableize(self, prefix):
-        by_label = lambda task: task[0]
-        by_label_length = lambda task: len(task[0])
+        by_label = lambda task: task.label
+        by_label_length = lambda task: len(task.label)
 
         try:
-            longest_task_label, _ = max(self._tasks, key=by_label_length)
+            task_with_longest_label = max(self._tasks, key=by_label_length)
         except ValueError:
             return ''
 
-        width = len(longest_task_label)
+        width = len(task_with_longest_label.label)
         sorted_tasks = sorted(self._tasks, key=by_label)
 
-        return '\n'.join('%s %s  # %s' % (prefix, label.ljust(width), desc)
-                         for label, desc in sorted_tasks)
+        return '\n'.join('%s %s  # %s' %
+                         (prefix, t.label.ljust(width), t.description)
+                         for t in sorted_tasks)
