@@ -24,4 +24,4 @@ def test():
 
     @task("Run tests for all support distributions")
     def all():
-        sh('tox')
+        sh('tox --skip-missing-interpreters')
