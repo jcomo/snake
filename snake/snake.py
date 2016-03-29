@@ -34,8 +34,14 @@ class Application(object):
 
         if opts.show_tasks:
             self._list_tasks()
+            return
+
+        if tasks:
+            for task in tasks:
+                self._execute_task(task, args)
         else:
-            self._execute_command(tasks, args)
+            # Run the default task
+            self._execute_task(None, args)
 
     def _handle_exception(self, e, opts):
         self.error('snake aborted!')
@@ -84,9 +90,9 @@ class Application(object):
     def _list_tasks(self):
         self.info(self.registry.view_all())
 
-    def _execute_command(self, tasks, args):
+    def _execute_task(self, task, args):
         try:
-            self.registry.execute(tasks, **args)
+            self.registry.execute(task, **args)
         except NoSuchTaskException as e:
             raise Exception("Don't know how to build task: %s" % e)
 
@@ -97,4 +103,5 @@ _runner = ShellWrapper(_instance)
 env = environ
 sh = _runner.execute
 task = _instance.registry.add_task
+requires = _instance.registry.add_dependencies
 namespace = _instance.registry.add_namespace

@@ -98,6 +98,32 @@ class SnakeTests(IntegrationTest):
         self.assertStdoutEqual(result, ['true'])
         self.assertStatusEqual(result, 0)
 
+    def test_it_runs_tasks_with_dependencies(self):
+        self.use_snakefile("""
+            from __future__ import print_function
+            from snake import *
+
+            @task("One")
+            @requires('two', 'three')
+            def one():
+                print('one')
+
+            @task("Two")
+            @requires('three')
+            def two():
+                print('two')
+
+            @task("Three")
+            def three():
+                print('three')
+        """)
+
+        result = self.execute('snake one')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutEqual(result, ['three', 'two', 'one'])
+        self.assertStatusEqual(result, 0)
+
     def test_it_has_shortcut_to_current_environment(self):
         import os
         os.environ['THING'] = 'hey'

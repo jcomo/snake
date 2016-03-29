@@ -2,6 +2,8 @@ import re
 from inspect import getargspec
 from six import iteritems, iterkeys, itervalues, PY2
 
+from .dependencies import DependencyGraph
+
 
 class NoSuchTaskException(Exception):
     pass
@@ -87,7 +89,9 @@ class TaskRegistry(object):
     def __init__(self, name):
         self.name = name
         self.default = None
+
         self._tasks = {}
+        self._dependencies = DependencyGraph()
 
         # Keeps a stack of namespace strings to handle nested namespaces.
         # The array is usually empty except when in the middle of evaluating
@@ -116,6 +120,12 @@ class TaskRegistry(object):
             return f
         return wrapper
 
+    def add_dependencies(self, *deps):
+        def wrapper(f):
+            self._add_dependencies(f, deps)
+            return f
+        return wrapper
+
     def add_namespace(self, f):
         """Defines a namespace for tasks. The name of the namespace will be the
         name of the function. This is useful for semantically grouping tasks
@@ -132,18 +142,18 @@ class TaskRegistry(object):
         self.__working_namespace.pop()
         return f
 
-    def execute(self, tasks, **kwargs):
+    def execute(self, _label, **kwargs):
         """Executes a number of tasks in order. The tasks are referenced by
         their names. Executes the default task if no tasks are supplied.
 
         :param tasks: list of task labels
         :param kwargs: the keyword arguments to pass to each task
         """
-        if not tasks:
-            self._execute_task(self.default, 'default', **kwargs)
-        else:
-            for label in tasks:
-                self._execute_task(label, label, **kwargs)
+        if not _label and not self.default:
+            raise NoSuchTaskException('default')
+
+        for dependency in self._dependencies.resolve(_label):
+            self._execute_task(dependency, **kwargs)
 
     def view_all(self):
         """Formats the tasks using each task's label and description.
@@ -153,17 +163,27 @@ class TaskRegistry(object):
         tasks = [task for task in itervalues(self._tasks)]
         return TaskListFormatter(tasks).tableize(self.name)
 
-    def _execute_task(self, label, friendly, **kwargs):
+    def _execute_task(self, _label, **kwargs):
+        if not _label:
+            _label = self.default
+
         try:
-            task = self._tasks[label]
+            task = self._tasks[_label]
         except KeyError:
-            raise NoSuchTaskException(friendly)
+            raise NoSuchTaskException(_label)
 
         task.execute(**kwargs)
 
     def _add_task(self, f, desc):
-        label = ':'.join(self.__working_namespace + [f.__name__])
+        label = self.__task_label(f)
         self._tasks[label] = Task(label, f, desc)
+
+    def _add_dependencies(self, f, deps):
+        label = self.__task_label(f)
+        self._dependencies.add(label, deps)
+
+    def __task_label(self, f):
+        return ':'.join(self.__working_namespace + [f.__name__])
 
 
 class TaskListFormatter(object):

@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 class CircularDependencyException(Exception):
     def __init__(self, cycle):
         message = 'Circular dependency detected: %s' % ' => '.join(cycle)
@@ -6,21 +9,11 @@ class CircularDependencyException(Exception):
 
 class DependencyGraph(object):
     def __init__(self):
-        self._vertices = {}
+        self._vertices = defaultdict(list)
 
-    def add_dependency(self, node, on=frozenset()):
-        self._initialize_node(node)
-
-        for dependency in on:
-            self._add_dependency(node, dependency)
-
-    def _initialize_node(self, node):
-        if node not in self._vertices:
-            self._vertices[node] = []
-
-    def _add_dependency(self, node, dependency):
-        self._initialize_node(dependency)
-        self._vertices[node].append(dependency)
+    def add(self, node, dependencies):
+        for dependency in dependencies:
+            self._vertices[node].append(dependency)
 
     def resolve(self, start):
         return self._resolve_node(start, [], [])
