@@ -47,12 +47,14 @@ Functions that become tasks can accept keyword arguments that will be specified 
 However, keyword arguments supplied to the function via Snake will always be strings.
 The function itself is not modified in any way by `@task` so the function can be called normally everywhere else in the program.
 
+Dependent tasks can be defined using `@requires(*tasks)`. Each argument to the decorator is a string representing the name of the task function. In the following example, executing the `install` task will always cause `bootstrap` to be executed first.
+
 Namespaces can also be used to group sets of related tasks by using the `@namespace` decorator.
 Note that the decorator accepts no parameters. The function that it decorates must also not accept any parameters.
 
 A default task can be defined by setting `default` to a string corresponding to the name of the task function in the `Snakefile`.
 
-Below is an example defining regular tasks, and namespaced tasks.
+Here we define regular tasks, tasks with dependencies, and task namespaces.
 
 ```python
 from snake import *
@@ -63,6 +65,12 @@ default = 'build:tools'
 @task("Bootstraps the environment")
 def bootstrap():
     sh('echo Bootstrapping...')
+
+
+@task("Installs dependencies")
+@requires('bootstrap')
+def install():
+    sh('echo Installing...')
 
 
 @namespace
@@ -88,6 +96,7 @@ Here is example output using the `Snakefile` from the previous section.
 $ snake -T
 
 bootstrap                  # Bootstraps the environment
+install                    # Installs dependencies
 build:app target={target}  # Builds the tools
 build:tools [typ=core]     # Builds the application
 ```
