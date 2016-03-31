@@ -16,7 +16,7 @@ First, install Snake. It is recommended to install it to your system Python inst
 Use a local installation if you need a specific version.
 
 ```
-pip install snaketool
+pip install pyrake
 ```
 
 ## Usage

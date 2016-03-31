@@ -36,4 +36,4 @@ def upload():
     """Upload the current version to PyPI"""
     sh('rm -rf build dist')
     sh('python setup.py sdist bdist_wheel')
-    sh('twine upload -u jcomo dist/*')
+    sh('twine upload dist/*')

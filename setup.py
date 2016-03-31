@@ -32,7 +32,7 @@ class Tox(TestCommand):
 
 
 setup(
-    name = 'snaketool',
+    name = 'pyrake',
     version = VERSION,
     description = "An easy to use build script utility",
     url = 'https://github.com/jcomo/snake',
