@@ -100,8 +100,8 @@ Here is example output using the `Snakefile` from the previous section.
 ```
 $ snake -T
 
-bootstrap                  # Bootstraps the environment
-install                    # Installs dependencies
-build:app target={target}  # Builds the tools
-build:tools [typ=core]     # Builds the application
+snake bootstrap                  # Bootstraps the environment
+snake install                    # Installs dependencies
+snake build:app target={target}  # Builds the tools
+snake build:tools [typ=core]     # Builds the application
 ```
