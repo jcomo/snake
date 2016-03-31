@@ -103,5 +103,4 @@ _runner = ShellWrapper(_instance)
 env = environ
 sh = _runner.execute
 task = _instance.registry.add_task
-requires = _instance.registry.add_dependencies
 namespace = _instance.registry.add_namespace

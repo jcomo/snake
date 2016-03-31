@@ -48,7 +48,10 @@ Functions that become tasks can accept keyword arguments that will be specified 
 However, keyword arguments supplied to the function via Snake will always be strings.
 The function itself is not modified in any way by `@task` so the function can be called normally everywhere else in the program.
 
-Dependent tasks can be defined using `@requires(*tasks)`. Each argument to the decorator is a string representing the name of the task function. In the following example, executing the `install` task will always cause `bootstrap` to be executed first.
+Dependeny tasks can be defined with the `requires` keyword arg to `@task`.
+It accepts a list of strings where each string is the label of another task.
+Task dependencies are resolved from left to right.
+In the following example, executing the `install` task will always cause `bootstrap` to be executed first.
 
 Namespaces can also be used to group sets of related tasks by using the `@namespace` decorator.
 Note that the decorator accepts no parameters. The function that it decorates must also not accept any parameters.
@@ -69,8 +72,7 @@ def bootstrap():
     sh('echo Bootstrapping...')
 
 
-@task
-@requires('bootstrap')
+@task(requires=['bootstrap'])
 def install():
     """Installs dependencies"""
     sh('echo Installing...')

@@ -103,13 +103,11 @@ class SnakeTests(IntegrationTest):
             from __future__ import print_function
             from snake import *
 
-            @task
-            @requires('two', 'three')
+            @task(requires=['two', 'three'])
             def one():
                 print('one')
 
-            @task
-            @requires('three')
+            @task(requires=['three'])
             def two():
                 print('two')
 

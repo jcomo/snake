@@ -107,22 +107,28 @@ class TaskRegistry(object):
 
         super(TaskRegistry, self).__setattr__(name, value)
 
-    def add_task(self, f):
+    def add_task(self, func=None, requires=None):
         """Defines a task by registering it. The function name is used as the task
-        label.
+        label and the function's docstring is used as the task description.
 
-        :param description: a brief explanation of what the task does. Used when
-                            listing tasks.
+        :param func: the function to use as the task. Do not use this parameter
+                     directly. It is only here to avoid having to use `@task`
+                     with parenthesis when there are no other arguments to the
+                     decorator.
+        :param requires: a list of required tasks where each entry in the list is
+                         a string task label
         :return: the function unmodified
         """
-        self._add_task(f)
-        return f
+        if func:
+            self._add_task(func, [])
+            return func
 
-    def add_dependencies(self, *deps):
-        def wrapper(f):
-            self._add_dependencies(f, deps)
-            return f
-        return wrapper
+        else:
+            def wrapper(f):
+                self._add_task(f, requires or [])
+                return f
+
+            return wrapper
 
     def add_namespace(self, f):
         """Defines a namespace for tasks. The name of the namespace will be the
@@ -172,22 +178,16 @@ class TaskRegistry(object):
 
         task.execute(**kwargs)
 
-    def _add_task(self, f):
-        label = self.__task_label(f)
+    def _add_task(self, f, deps):
+        label = ':'.join(self.__working_namespace + [f.__name__])
 
         description = f.__doc__
         if description:
             # Trim leading whitespace and only get the first line of the function doc
             description = description.lstrip().split('\n')[0]
 
-        self._tasks[label] = Task(label, f, description)
-
-    def _add_dependencies(self, f, deps):
-        label = self.__task_label(f)
         self._dependencies.add(label, deps)
-
-    def __task_label(self, f):
-        return ':'.join(self.__working_namespace + [f.__name__])
+        self._tasks[label] = Task(label, f, description)
 
 
 class TaskListFormatter(object):

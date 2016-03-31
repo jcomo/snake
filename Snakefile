@@ -11,7 +11,7 @@ def bootstrap():
         sh('virtualenv -p python2.7 %s' % ENV)
 
 
-@task
+@task(requires=['bootstrap'])
 def install():
     """Install development dependencies"""
     sh('%s/bin/pip install -r requirements.txt' % ENV)

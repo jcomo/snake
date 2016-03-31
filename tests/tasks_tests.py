@@ -215,8 +215,7 @@ class TaskRegistryTests(TestCase):
         one_called = Flag()
         two_called = Flag()
 
-        @self.registry.add_task
-        @self.registry.add_dependencies('two')
+        @self.registry.add_task(requires=['two'])
         def one():
             one_called.set()
 
