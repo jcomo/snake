@@ -143,7 +143,7 @@ class TaskRegistryTests(TestCase):
     def test_function_can_be_called_normally_after_registration(self):
         called = Flag()
 
-        @self.registry.add_task("Description")
+        @self.registry.add_task
         def flag():
             called.set()
 
@@ -153,7 +153,7 @@ class TaskRegistryTests(TestCase):
     def test_it_executes_task_by_label(self):
         called = Flag()
 
-        @self.registry.add_task("Description")
+        @self.registry.add_task
         def foo():
             called.set()
 
@@ -167,7 +167,7 @@ class TaskRegistryTests(TestCase):
     def test_it_runs_default_task_when_no_tasks_specified(self):
         called = Flag()
 
-        @self.registry.add_task("Test")
+        @self.registry.add_task
         def foo():
             called.set()
 
@@ -188,7 +188,7 @@ class TaskRegistryTests(TestCase):
         @self.registry.add_namespace
         def name():
 
-            @self.registry.add_task("Description")
+            @self.registry.add_task
             def space():
                 called.set()
 
@@ -204,7 +204,7 @@ class TaskRegistryTests(TestCase):
             @self.registry.add_namespace
             def name():
 
-                @self.registry.add_task("Description")
+                @self.registry.add_task
                 def space():
                     called.set()
 
@@ -215,12 +215,12 @@ class TaskRegistryTests(TestCase):
         one_called = Flag()
         two_called = Flag()
 
-        @self.registry.add_task("One")
+        @self.registry.add_task
         @self.registry.add_dependencies('two')
         def one():
             one_called.set()
 
-        @self.registry.add_task("Two")
+        @self.registry.add_task
         def two():
             two_called.set()
 
@@ -234,13 +234,13 @@ class TaskRegistryTests(TestCase):
 
     def test_it_renders_tasks_in_table_form(self):
 
-        @self.registry.add_task("Builds")
+        @self.registry.add_task
         def build():
-            pass
+            """Builds"""
 
-        @self.registry.add_task("Compiles")
+        @self.registry.add_task
         def compile():
-            pass
+            """Compiles"""
 
         expected = [
             'snake build    # Builds',
@@ -250,13 +250,14 @@ class TaskRegistryTests(TestCase):
         self.assertEqual('\n'.join(expected), self.registry.view_all())
 
     def test_it_renders_tasks_with_arguments(self):
-        @self.registry.add_task("Builds")
-        def build(medium='container'):
-            pass
 
-        @self.registry.add_task("Compiles")
+        @self.registry.add_task
+        def build(medium='container'):
+            """Builds"""
+
+        @self.registry.add_task
         def compile(target, optimization='full'):
-            pass
+            """Compiles"""
 
         expected = [
             'snake build [medium=container]                     # Builds',
@@ -264,3 +265,25 @@ class TaskRegistryTests(TestCase):
         ]
 
         self.assertEqual('\n'.join(expected), self.registry.view_all())
+
+    def test_it_stops_rendering_description_at_the_first_newline(self):
+
+        @self.registry.add_task
+        def descriptive():
+            """
+            This is a long description.
+
+            What follows is blah blah blah.
+            """
+
+        expected = 'snake descriptive  # This is a long description.'
+
+        self.assertEqual(expected, self.registry.view_all())
+
+    def test_it_does_not_render_tasks_without_descriptions(self):
+
+        @self.registry.add_task
+        def something():
+            pass
+
+        self.assertEqual('', self.registry.view_all())

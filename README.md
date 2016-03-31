@@ -26,8 +26,9 @@ Similar to Rake, Snake uses a manifest file called the `Snakefile`, which contai
 ```python
 from snake import *
 
-@task("Say hello")
+@task
 def hello(name='World'):
+    """Say hello"""
     sh('echo Hello, %s!' % name)
 ```
 
@@ -62,26 +63,30 @@ from snake import *
 default = 'build:tools'
 
 
-@task("Bootstraps the environment")
+@task
 def bootstrap():
+    """Bootstraps the environment"""
     sh('echo Bootstrapping...')
 
 
-@task("Installs dependencies")
+@task
 @requires('bootstrap')
 def install():
+    """Installs dependencies"""
     sh('echo Installing...')
 
 
 @namespace
 def build():
 
-    @task("Builds the tools")
+    @task
     def tools(typ='core'):
+        """Builds the tools"""
         sh('echo Building the %s tools' % typ)
 
-    @task("Builds the application")
+    @task
     def app(target):
+        """Builds the application"""
         sh('echo Building the application for %s' % target)
 ```
 

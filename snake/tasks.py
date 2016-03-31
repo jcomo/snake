@@ -107,7 +107,7 @@ class TaskRegistry(object):
 
         super(TaskRegistry, self).__setattr__(name, value)
 
-    def add_task(self, description):
+    def add_task(self, f):
         """Defines a task by registering it. The function name is used as the task
         label.
 
@@ -115,10 +115,8 @@ class TaskRegistry(object):
                             listing tasks.
         :return: the function unmodified
         """
-        def wrapper(f):
-            self._add_task(f, description)
-            return f
-        return wrapper
+        self._add_task(f)
+        return f
 
     def add_dependencies(self, *deps):
         def wrapper(f):
@@ -174,9 +172,15 @@ class TaskRegistry(object):
 
         task.execute(**kwargs)
 
-    def _add_task(self, f, desc):
+    def _add_task(self, f):
         label = self.__task_label(f)
-        self._tasks[label] = Task(label, f, desc)
+
+        description = f.__doc__
+        if description:
+            # Trim leading whitespace and only get the first line of the function doc
+            description = description.lstrip().split('\n')[0]
+
+        self._tasks[label] = Task(label, f, description)
 
     def _add_dependencies(self, f, deps):
         label = self.__task_label(f)
@@ -191,22 +195,26 @@ class TaskListFormatter(object):
         self._tasks = tasks
 
     def tableize(self, prefix):
-        if not self._tasks:
+        documented_tasks = [(self._task_signature(t), t.description)
+                            for t in self._tasks if t.description]
+
+        if not documented_tasks:
             return ''
 
-        tasks = [('%s%s' % (t.label, self._render_arg_list(t)), t.description)
-                 for t in self._tasks]
-
         by_signature_length = lambda task: len(task[0])
-        task_with_longest_signature = max(tasks, key=by_signature_length)
+        task_with_longest_signature = max(documented_tasks, key=by_signature_length)
         width = len(task_with_longest_signature[0])
 
         by_signature = lambda task: task[0]
-        sorted_tasks = sorted(tasks, key=by_signature)
+        sorted_tasks = sorted(documented_tasks, key=by_signature)
 
         return '\n'.join('%s %s  # %s' %
                          (prefix, signature.ljust(width), description)
                          for signature, description in sorted_tasks)
+
+    def _task_signature(self, task):
+        """A task signature is the combination of the task name and its arguments"""
+        return '%s%s' % (task.label, self._render_arg_list(task))
 
     def _render_arg_list(self, task):
         required_args = task.required_args()

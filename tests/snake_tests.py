@@ -14,9 +14,9 @@ class SnakeTests(IntegrationTest):
         self.use_snakefile("""
             from snake import *
 
-            @task("Do something")
+            @task
             def something():
-                pass
+                '''Do something'''
         """)
 
         result = self.execute('snake blah')
@@ -32,7 +32,7 @@ class SnakeTests(IntegrationTest):
 
             default = 'greet'
 
-            @task("Greet")
+            @task
             def greet():
                 print('hi')
         """)
@@ -47,7 +47,7 @@ class SnakeTests(IntegrationTest):
         self.use_snakefile("""
             from snake import *
 
-            @task("Test")
+            @task
             def test():
                 sh('true')
         """)
@@ -63,7 +63,7 @@ class SnakeTests(IntegrationTest):
             from __future__ import print_function
             from snake import *
 
-            @task("Say hello")
+            @task
             def hello(name='World'):
                 print('Hello, %s!' % name)
         """)
@@ -87,7 +87,7 @@ class SnakeTests(IntegrationTest):
             @namespace
             def name():
 
-                @task("Does stuff")
+                @task
                 def space():
                     sh('true')
         """)
@@ -103,17 +103,17 @@ class SnakeTests(IntegrationTest):
             from __future__ import print_function
             from snake import *
 
-            @task("One")
+            @task
             @requires('two', 'three')
             def one():
                 print('one')
 
-            @task("Two")
+            @task
             @requires('three')
             def two():
                 print('two')
 
-            @task("Three")
+            @task
             def three():
                 print('three')
         """)
@@ -132,7 +132,7 @@ class SnakeTests(IntegrationTest):
             from __future__ import print_function
             from snake import *
 
-            @task("Check environment")
+            @task
             def check():
                 print(env.get('THING'))
         """)
@@ -147,7 +147,7 @@ class SnakeTests(IntegrationTest):
         self.use_snakefile("""
             from snake import *
 
-            @task("Test")
+            @task
             def test():
                 sh('blah')
         """)
@@ -165,17 +165,17 @@ class SnakeTests(IntegrationTest):
             @namespace
             def sub():
 
-                @task("One")
+                @task
                 def one():
-                    pass
+                    '''One'''
 
-                @task("Two")
+                @task
                 def two():
-                    pass
+                    '''Two'''
 
-            @task("Three")
+            @task
             def three():
-                pass
+                '''Three'''
         """)
 
         result = self.execute('snake -T')
@@ -194,7 +194,7 @@ class SnakeTests(IntegrationTest):
         self.use_snakefile("""
             from snake import *
 
-            @task("Bad")
+            @task
             def bad():
                 raise Exception("Bad task")
         """)
@@ -212,7 +212,7 @@ class SnakeTests(IntegrationTest):
         self.use_snakefile("""
             from snake import *
 
-            @task("Bad")
+            @task
             def bad():
                 raise Exception("Bad task")
         """)
