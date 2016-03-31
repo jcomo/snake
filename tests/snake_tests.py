@@ -203,7 +203,7 @@ class SnakeTests(IntegrationTest):
         self.assertStderrMatches(result, r'^Bad task$')
         self.assertStderrMatches(result, r"Snakefile:5:in `bad'$")
         self.assertStderrMatches(result, r"^\(See full trace by running task with --trace\)$")
-        self.assertStderrDoesNotMatch(result, r"snake.py:\d+:")
+        self.assertStderrDoesNotMatch(result, r"application.py:\d+:")
         self.assertStatusEqual(result, 1)
 
     def test_it_reports_full_stack_trace_with_option(self):
@@ -220,5 +220,5 @@ class SnakeTests(IntegrationTest):
         self.assertStdoutEmpty(result)
         self.assertStderrMatches(result, r'^Bad task$')
         self.assertStderrMatches(result, r"Snakefile:5:in `bad'$")
-        self.assertStderrMatches(result, r"snake.py:\d+:")
+        self.assertStderrMatches(result, r"application.py:\d+:")
         self.assertStatusEqual(result, 1)

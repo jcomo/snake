@@ -1,7 +1,7 @@
 from mock import Mock, patch
 from unittest2 import TestCase
 
-from snake.snake import Application
+from snake.application import Application
 from snake.shell import ShellWrapper, CommandFailedException
 
 
