@@ -58,7 +58,7 @@ class TaskTests(TestCase):
 
         task = Task('foo:bar', bar, "Description")
 
-        with self.assertRaisesRegexp(TypeError, r"^foo:bar requires arguments: a, b$"):
+        with self.assertRaisesRegexp(TypeError, r"^foo:bar requires argument\(s\): a, b$"):
             task.execute(**args)
 
     def test_it_bubbles_up_other_type_errors(self):

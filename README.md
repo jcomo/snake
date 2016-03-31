@@ -8,7 +8,7 @@ Rake is a tried and true build tool for the Ruby community and there are many of
 What Rake really lacks when using it with a Python project is the ability to hook into Python code within the project. Usually the pattern is to create a python script and then expose it with a Rake task, which is a lot of overhead for a tool whose goal is to reduce overhead.
 Snake is meant to be a comparable tool to Rake with familiar syntax and concepts that allows Python developers to write automation tasks in the same language of their project.
 
-Snake aims to maintain a similar goal to Rake, which is to reduce the overhead to add automation to a project. It does this by providing terse, straightforward syntax in a flexible, yet simple tool.
+Snake maintains a similar goal of Rake, which is to reduce the overhead to add automation to a project. It does this by providing terse, straightforward syntax in a flexible, yet simple DSL.
 
 ## Installation
 
@@ -105,15 +105,3 @@ install                    # Installs dependencies
 build:app target={target}  # Builds the tools
 build:tools [typ=core]     # Builds the application
 ```
-
-## Development Setup
-
-To use your dev version of snake, you will first need to install development dependencies and wire up the development version of the script.
-From inside the top level snake development directory, run
-
-```
-alias snakedev="PYTHONPATH=`pwd` `pwd`/bin/snake"
-snakedev bootstrap install
-```
-
-You could instead alias to `snake`, but remember to `unalias` when you are done developing in order to switch back to the installed version.

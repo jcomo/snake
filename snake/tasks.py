@@ -30,7 +30,7 @@ class Task(object):
         except TypeError as e:
             if self._is_error_due_to_missing_arguments(e):
                 args = ', '.join(self.required_args())
-                raise TypeError("%s requires arguments: %s" % (self.label, args))
+                raise TypeError("%s requires argument(s): %s" % (self.label, args))
             else:
                 raise
 
