@@ -1,6 +1,8 @@
 # snake [![Build Status](https://travis-ci.org/jcomo/snake.svg?branch=master)](https://travis-ci.org/jcomo/snake)
 
-Build script utility for Python. Ported from the popular Ruby tool, [Rake](https://github.com/ruby/rake).
+Build script utility for Python.
+Ported from the popular Ruby tool, [Rake](https://github.com/ruby/rake).
+Still very much a work in progress.
 
 ## Motivation
 
