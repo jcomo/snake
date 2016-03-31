@@ -29,3 +29,11 @@ def test():
     def all():
         """Run tests for all support distributions"""
         sh('tox --skip-missing-interpreters')
+
+
+@task
+def upload():
+    """Upload the current version to PyPI"""
+    sh('rm -rf build dist')
+    sh('python setup.py sdist bdist_wheel')
+    sh('twine upload -u jcomo dist/*')

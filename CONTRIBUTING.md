@@ -24,6 +24,15 @@ snakedev bootstrap install
 
 You could instead alias to `snake`, but remember to `unalias` when you are done developing in order to switch back to the installed version.
 
+Another option would be to run the following whenever you make changes.
+
+```
+python setup.py install
+```
+
+This will install the `snake` binary to your python distribution and put it on your path.
+The downside to this is that its easy to forget to do this each time.
+
 ### Running Tests
 
 While developing, you can either run tests for the current environment using `nosetests` or you can run tests against all supported Python versions using `tox`.

@@ -30,13 +30,14 @@ class Tox(TestCommand):
 
 
 setup(
-    name = 'snake',
-    version = '0.0.1',
+    name = 'snaketool',
+    version = '0.1.0',
     description = "An easy to use build script utility",
     url = 'https://github.com/jcomo/snake',
     author = 'Jonathan Como',
     author_email = 'jonathan.como@gmail.com',
     packages = find_packages(exclude=['docs', 'tests', 'scripts']),
+    scripts = ['bin/snake'],
     install_requires = [],
     tests_require = ['tox'],
     cmdclass = {
