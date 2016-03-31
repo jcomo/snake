@@ -7,6 +7,7 @@ from traceback import extract_tb
 from .parser import ApplicationArgsParser as parser
 from .shell import ShellWrapper
 from .tasks import TaskRegistry, NoSuchTaskException
+from .version import VERSION
 
 
 class Application(object):
@@ -23,6 +24,9 @@ class Application(object):
 
     def run(self):
         tasks, args, opts = parser.parse(argv[1:])
+        if opts.version:
+            self.info('snake, version %s' % VERSION)
+            return
 
         try:
             self._run(tasks, args, opts)

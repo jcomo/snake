@@ -1,12 +1,14 @@
 from optparse import OptionParser
 
 flags_parser = OptionParser()
-flags_parser.add_option('-T', '--tasks', dest='show_tasks', action='store_true',
-                        help="Display the tasks with descriptions and exits")
-flags_parser.add_option('-t', '--trace', dest='trace', action='store_true',
-                        help="Turn on verbose backtraces")
 flags_parser.add_option('-f', '--snakefile', dest='filename', metavar='FILE',
                         help="Use FILE as the Snakefile")
+flags_parser.add_option('-t', '--trace', dest='trace', action='store_true',
+                        help="Turn on verbose backtraces")
+flags_parser.add_option('-T', '--tasks', dest='show_tasks', action='store_true',
+                        help="Display the tasks with descriptions and exit")
+flags_parser.add_option('--version', dest='version', action='store_true',
+                        help="Display the version information and exit")
 
 
 class ApplicationArgsParser(object):

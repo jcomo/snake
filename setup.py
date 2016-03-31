@@ -3,6 +3,8 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
+from snake.version import VERSION
+
 
 class Tox(TestCommand):
     user_options = [('tox-args=', 'a', "Arguments to pass to tox")]
@@ -31,7 +33,7 @@ class Tox(TestCommand):
 
 setup(
     name = 'snaketool',
-    version = '0.1.0',
+    version = VERSION,
     description = "An easy to use build script utility",
     url = 'https://github.com/jcomo/snake',
     author = 'Jonathan Como',

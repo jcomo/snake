@@ -2,6 +2,13 @@ from tests.utils import IntegrationTest
 
 
 class SnakeTests(IntegrationTest):
+    def test_it_reports_version_information(self):
+        result = self.execute('snake --version')
+
+        self.assertStderrEmpty(result)
+        self.assertStdoutMatches(result, r'^snake, version \d+\.\d+\.\d+$')
+        self.assertStatusEqual(result, 0)
+
     def test_it_exits_with_error_when_no_snakefile_found(self):
         result = self.execute('snake')
 
