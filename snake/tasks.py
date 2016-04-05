@@ -153,8 +153,11 @@ class TaskRegistry(object):
         :param tasks: list of task labels
         :param kwargs: the keyword arguments to pass to each task
         """
-        if not _label and not self.default:
-            raise NoSuchTaskException('default')
+        if not _label:
+            if not self.default:
+                raise NoSuchTaskException('default')
+
+            _label = self.default
 
         for dependency in self._dependencies.resolve(_label):
             self._execute_task(dependency, **kwargs)
@@ -168,9 +171,6 @@ class TaskRegistry(object):
         return TaskListFormatter(tasks).tableize(self.name)
 
     def _execute_task(self, _label, **kwargs):
-        if not _label:
-            _label = self.default
-
         try:
             task = self._tasks[_label]
         except KeyError:

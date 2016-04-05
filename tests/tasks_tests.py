@@ -9,6 +9,9 @@ class Flag(object):
     def __init__(self):
         self.value = False
 
+    def __repr__(self):
+        return '<Flag: %s>' % self.value
+
     def __nonzero__(self):
         return self.value
 
@@ -173,6 +176,24 @@ class TaskRegistryTests(TestCase):
 
         self.registry.default = 'foo'
         self.registry.execute(None)
+
+        self.assertTrue(called)
+
+    def test_default_task_obeys_dependencies(self):
+        called = Flag()
+
+        @self.registry.add_task
+        def foo():
+            called.set()
+
+        @self.registry.add_task(requires=['foo'])
+        def bar():
+            pass
+
+        self.registry.default = 'bar'
+        self.registry.execute(None)
+
+        self.assertTrue(called)
 
     def test_it_raises_assertion_when_default_is_not_string(self):
         with self.assertRaisesRegexp(AssertionError, r"default task must be a string"):
