@@ -4,6 +4,7 @@ from six import print_
 from sys import exit, stderr, argv, exc_info
 from traceback import extract_tb
 
+from .datastructures import LenientDict
 from .parser import ApplicationArgsParser as parser
 from .shell import ShellWrapper
 from .tasks import TaskRegistry, NoSuchTaskException
@@ -104,7 +105,7 @@ class Application(object):
 _instance = Application()
 _runner = ShellWrapper(_instance)
 
-env = environ
+ENV = LenientDict(environ)
 sh = _runner.execute
 task = _instance.registry.add_task
 namespace = _instance.registry.add_namespace

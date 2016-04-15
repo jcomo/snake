@@ -1,3 +1,3 @@
-from .application import env, sh, task, namespace
+from .application import ENV, sh, task, namespace
 
-__all__ = ['env', 'sh', 'task', 'namespace']
+__all__ = ['ENV', 'sh', 'task', 'namespace']

@@ -1,20 +1,20 @@
 from snake import *
 import os
 
-ENV = 'env'
+ENV_DIR = 'env'
 
 
 @task
 def bootstrap():
     """Bootstrap the virtualenv"""
-    if not os.path.exists(ENV):
-        sh('virtualenv -p python2.7 %s' % ENV)
+    if not os.path.exists(ENV_DIR):
+        sh('virtualenv -p python2.7 %s' % ENV_DIR)
 
 
 @task(requires=['bootstrap'])
 def install():
     """Install development dependencies"""
-    sh('%s/bin/pip install -r requirements.txt' % ENV)
+    sh('%s/bin/pip install -r requirements.txt' % ENV_DIR)
 
 
 @namespace
@@ -23,7 +23,7 @@ def test():
     @task
     def current(test=''):
         """Run tests in current virtualenv"""
-        sh('%s/bin/nosetests -s %s' % (ENV, test))
+        sh('%s/bin/nosetests -s %s' % (ENV_DIR, test))
 
     @task
     def all():

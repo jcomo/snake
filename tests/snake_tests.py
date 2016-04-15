@@ -139,13 +139,14 @@ class SnakeTests(IntegrationTest):
 
             @task
             def check():
-                print(env.get('THING'))
+                print(ENV['THING'])
+                print(ENV['OTHER'])
         """)
 
         result = self.execute('snake check')
 
         self.assertStderrEmpty(result)
-        self.assertStdoutEqual(result, ['hey'])
+        self.assertStdoutEqual(result, ['hey', 'None'])
         self.assertStatusEqual(result, 0)
 
     def test_it_exits_when_shell_command_fails(self):
