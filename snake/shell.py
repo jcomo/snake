@@ -16,6 +16,14 @@ class ShellWrapper(object):
         self.logger = logger
 
     def execute(self, command, silent=False):
+        """Executes a command using the user's shell. A nonzero exit status will raise an exception unless
+        silent is specified.
+
+        :param command: the command to run as a string
+        :param silent: if false, will raise if the command fails
+
+        :return: the exit status of the command
+        """
         self.logger.info(command)
         exit_status = call(command, shell=True)
         if exit_status != 0 and not silent:

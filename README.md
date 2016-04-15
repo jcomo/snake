@@ -112,24 +112,24 @@ snake build:tools [typ=core]     # Builds the application
 
 ## API Reference
 
-### `@task(requires=None)`
+#### `@task(requires=None)`
 
 Decorates a function that then exposes it as a task to be run.
 The name of the function becomes the name of the task.
 The `requires` parameter, if specified, is a list of strings where each string is the name of a task that this one depends on.
 
-### `@namespace`
+#### `@namespace`
 
 Decorates a function so that it exposes a task namespace.
 The name of the function becomes the name of the namespace.
 Tasks and nested namespaces can be defined in the namespace and will be called as `namespace:task`.
 
-### `sh(command, silent=False)`
+#### `sh(command, silent=False)`
 
 Runs a shell command.
 If silent is not specified, an exception will be raised if the resulting status of the command is nonzero.
 
-### `ENV`
+#### `ENV`
 
 A dict that gives you access to environment variables.
 It has a special property that accessing by key using brackets will not raise a `KeyError` but will return `None` instead.
