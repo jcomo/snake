@@ -15,8 +15,10 @@ class ShellWrapper(object):
     def __init__(self, logger):
         self.logger = logger
 
-    def execute(self, command):
+    def execute(self, command, silent=False):
         self.logger.info(command)
         exit_status = call(command, shell=True)
-        if exit_status != 0:
+        if exit_status != 0 and not silent:
             raise CommandFailedException(exit_status, command)
+
+        return exit_status
