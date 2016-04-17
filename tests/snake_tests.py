@@ -230,3 +230,22 @@ class SnakeTests(IntegrationTest):
         self.assertStderrMatches(result, r"Snakefile:5:in `bad'$")
         self.assertStderrMatches(result, r"application.py:\d+:")
         self.assertStatusEqual(result, 1)
+
+    def test_it_reports_task_execution_context(self):
+        self.use_snakefile("""
+            from snake import *
+
+            @task(requires=['a'])
+            def b():
+                pass
+
+            @task
+            def a():
+                raise Exception("Something went wrong")
+        """)
+
+        result = self.execute('snake b')
+
+        self.assertStdoutEmpty(result)
+        self.assertStderrMatches(result, r"^Tasks: TOP => b => a$")
+        self.assertStatusEqual(result, 1)

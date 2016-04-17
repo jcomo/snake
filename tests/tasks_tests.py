@@ -248,6 +248,42 @@ class TaskRegistryTests(TestCase):
         self.assertTrue(two_called)
         self.assertTrue(one_called)
 
+    def test_it_reports_execution_context_at_point_of_failure(self):
+
+        @self.registry.add_task(requires=['two'])
+        def one():
+            pass
+
+        @self.registry.add_task
+        def two(requires=['three']):
+            raise ValueError('two')
+
+        @self.registry.add_task
+        def three():
+            pass
+
+        try:
+            self.registry.execute('one')
+        except ValueError:
+            self.assertEqual(['one', 'two'], list(self.registry.execution_context))
+
+    def test_it_resets_execution_context_between_executions(self):
+
+        @self.registry.add_task()
+        def one():
+            pass
+
+        @self.registry.add_task
+        def two():
+            raise ValueError('two')
+
+        self.registry.execute('one')
+
+        try:
+            self.registry.execute('two')
+        except ValueError:
+            self.assertEqual(['two'], list(self.registry.execution_context))
+
     def test_it_renders_nothing_when_no_tasks(self):
         table = self.registry.view_all()
         self.assertEqual('', table)

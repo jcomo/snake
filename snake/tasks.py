@@ -1,4 +1,5 @@
 import re
+from collections import deque
 from inspect import getargspec
 from six import iteritems, iterkeys, itervalues, PY2
 
@@ -98,6 +99,11 @@ class TaskRegistry(object):
         # the contents of a namespace
         self.__working_namespace = []
 
+        # A deque that lives for the duration of task execution. It is used
+        # for determining the task chain that was execution if an exception is
+        # raised.
+        self.__execution_context = deque()
+
     def __setattr__(self, name, value):
         if name == 'default':
             if value and not isinstance(value, str):
@@ -146,6 +152,10 @@ class TaskRegistry(object):
         self.__working_namespace.pop()
         return f
 
+    @property
+    def execution_context(self):
+        return reversed(self.__execution_context)
+
     def execute(self, _label, **kwargs):
         """Executes a number of tasks in order. The tasks are referenced by
         their names. Executes the default task if no tasks are supplied.
@@ -159,8 +169,12 @@ class TaskRegistry(object):
 
             _label = self.default
 
-        for dependency in self._dependencies.resolve(_label):
+        dependencies = self._dependencies.resolve(_label)
+        self.__execution_context = deque(dependencies)
+
+        for dependency in dependencies:
             self._execute_task(dependency, **kwargs)
+            self.__execution_context.popleft()
 
     def view_all(self):
         """Formats the tasks using each task's label and description.

@@ -56,7 +56,8 @@ class Application(object):
         self._print_stack_trace(tb, verbose=opts.trace)
 
         if not opts.trace:
-            self.error('')  # TODO: Replace this with the task hierarchy
+            context = ' => '.join(self.registry.execution_context)
+            self.error('Tasks: TOP => %s' % context)
             self.error('(See full trace by running task with --trace)')
 
         exit(1)
